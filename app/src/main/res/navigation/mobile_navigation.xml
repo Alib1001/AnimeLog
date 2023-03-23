@@ -13,9 +13,9 @@
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.alib.myanimelist.ui.dashboard.DashboardFragment"
+        android:name="com.alib.myanimelist.ui.FavAnime.FavAnimeFragment"
         android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_fav_anime" />
 
     <fragment
         android:id="@+id/navigation_notifications"
