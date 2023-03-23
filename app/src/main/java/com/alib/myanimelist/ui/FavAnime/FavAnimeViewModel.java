@@ -1,16 +1,16 @@
-package com.alib.myanimelist.ui.dashboard;
+package com.alib.myanimelist.ui.FavAnime;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class DashboardViewModel extends ViewModel {
+public class FavAnimeViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public DashboardViewModel() {
+    public FavAnimeViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is dashboard fragment");
+        mText.setValue("This is favAnime fragment");
     }
 
     public LiveData<String> getText() {

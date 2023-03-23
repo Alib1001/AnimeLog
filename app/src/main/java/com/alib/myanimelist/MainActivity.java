@@ -4,18 +4,13 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import com.alib.myanimelist.ui.AnimeListFragment;
+import com.alib.myanimelist.ui.FavAnime.FavAnimeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-import com.alib.myanimelist.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
@@ -36,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         fragmentManager = getSupportFragmentManager();
 
         animeListFragment = new AnimeListFragment();
-        favoriteAnimeFragment = new AnimeListFragment();
+        favoriteAnimeFragment = new FavAnimeFragment();
 
         fragmentManager.beginTransaction().add(R.id.container, favoriteAnimeFragment, "2").hide(favoriteAnimeFragment).commit();
         fragmentManager.beginTransaction().add(R.id.container, animeListFragment, "1").commit();
