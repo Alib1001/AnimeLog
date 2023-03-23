@@ -10,14 +10,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.List;
 
 public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHolder> {
 
-    private List<Anime> animeList;
+    private List<net.sandrohc.jikan.model.anime.Anime> animeList;
     private LayoutInflater inflater;
 
-    public AnimeAdapter(Context context, List<Anime> animeList) {
+    public AnimeAdapter(Context context, List<net.sandrohc.jikan.model.anime.Anime> animeList) {
         this.animeList = animeList;
         this.inflater = LayoutInflater.from(context);
     }
@@ -31,22 +33,25 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
 
     @Override
     public void onBindViewHolder(@NonNull AnimeViewHolder holder, int position) {
-        Anime anime = animeList.get(position);
+        net.sandrohc.jikan.model.anime.Anime anime = animeList.get(position);
+        String imageUrl = anime.images.getPreferredImageUrl();
+
         holder.titleTextView.setText(anime.getTitle());
-        holder.genreTextView.setText(anime.getGenre());
+        Picasso.get().load(imageUrl).into(holder.bannerImageView);
         holder.ratingTextView.setText(String.valueOf(anime.getRating()));
-        // TODO: Set anime image using Glide or another image loading library
     }
     @Override
     public int getItemCount() {
         return animeList.size();
     }
     public static class AnimeViewHolder extends RecyclerView.ViewHolder {
+        public ImageView bannerImageView;
         public TextView titleTextView;
         public TextView genreTextView;
         public TextView ratingTextView;
         public AnimeViewHolder(View itemView) {
             super(itemView);
+            bannerImageView = itemView.findViewById(R.id.image_view);
             titleTextView = itemView.findViewById(R.id.title_text_view);
             genreTextView = itemView.findViewById(R.id.genre_text_view);
             ratingTextView = itemView.findViewById(R.id.rating_text_view);
