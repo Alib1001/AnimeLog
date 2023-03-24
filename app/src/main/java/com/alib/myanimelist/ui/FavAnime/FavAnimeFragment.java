@@ -1,10 +1,14 @@
 package com.alib.myanimelist.ui.FavAnime;
+
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,13 +16,17 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.alib.myanimelist.Database.AnimeDatabaseHelper;
 import com.alib.myanimelist.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FavAnimeFragment extends Fragment {
 
+public class FavAnimeFragment extends Fragment {
+    String a ;
+    private AnimeDatabaseHelper dbHelper;
     private RecyclerView mRecyclerView;
     private List<Integer> mFavoriteAnimeIds;
     private GridLayoutManager mLayoutManager;
@@ -26,13 +34,6 @@ public class FavAnimeFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mFavoriteAnimeIds = new ArrayList<>();
-        mFavoriteAnimeIds.add(R.drawable.ic_launcher_foreground);
-        mFavoriteAnimeIds.add(R.drawable.ic_launcher_foreground);
-        mFavoriteAnimeIds.add(R.drawable.ic_launcher_foreground);
-        mFavoriteAnimeIds.add(R.drawable.ic_launcher_foreground);
-        mFavoriteAnimeIds.add(R.drawable.ic_launcher_foreground);
-        
 
 
 
@@ -42,13 +43,19 @@ public class FavAnimeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_fav_anime, container, false);
+        dbHelper = new AnimeDatabaseHelper(getActivity());
         mRecyclerView = view.findViewById(R.id.fav_anime_list);
 
         int numColumns = getNumColumns();
         mLayoutManager = new GridLayoutManager(getContext(), numColumns);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        FavAnimeAdapter adapter = new FavAnimeAdapter(mFavoriteAnimeIds, numColumns);
+        Cursor cursor = dbHelper.readAllData();
+        List<Integer> animeIds = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            animeIds.add(R.drawable.ic_launcher_foreground);
+        }
+        FavAnimeAdapter adapter = new FavAnimeAdapter(animeIds, numColumns, cursor);
         mRecyclerView.setAdapter(adapter);
 
         return view;
@@ -78,14 +85,17 @@ public class FavAnimeFragment extends Fragment {
     /**
      * Adapter class for the RecyclerView
      */
+
     private class FavAnimeAdapter extends RecyclerView.Adapter<FavAnimeAdapter.ViewHolder> {
 
         private List<Integer> mAnimeIds;
         private int mNumColumns;
+        private Cursor mCursor;
 
-        public FavAnimeAdapter(List<Integer> animeIds, int numColumns) {
+        public FavAnimeAdapter(List<Integer> animeIds, int numColumns,Cursor cursor) {
             mAnimeIds = animeIds;
             mNumColumns = numColumns;
+            mCursor = cursor;
         }
 
         @NonNull
@@ -93,14 +103,32 @@ public class FavAnimeFragment extends Fragment {
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fav_anime_item, parent, false);
             ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-            layoutParams.width = parent.getWidth() / mNumColumns; // Set the width of the item view
+            layoutParams.width = parent.getWidth() / mNumColumns;
             view.setLayoutParams(layoutParams);
             return new ViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            holder.mImageView.setImageResource(mAnimeIds.get(position));
+
+
+            mCursor.moveToPosition(position);
+            String title = mCursor.getString(1);
+            String imageUrl = mCursor.getString(2);
+            holder.titleTextView.setText(title);
+
+            Picasso.get().load(imageUrl).into(holder.mImageView);
+
+
+
+
+            while (mCursor.moveToNext()){
+                Toast.makeText(getContext(),mCursor.getString(1),Toast.LENGTH_SHORT).show();
+
+            }
+
+
+
         }
 
         @Override
@@ -108,17 +136,17 @@ public class FavAnimeFragment extends Fragment {
             return mAnimeIds.size();
         }
 
-        /**
-         * ViewHolder class for the RecyclerView
-         */
         public class ViewHolder extends RecyclerView.ViewHolder {
 
             public ImageView mImageView;
+            public TextView titleTextView;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 mImageView = itemView.findViewById(R.id.anime_image);
+                titleTextView = itemView.findViewById(R.id.anime_title);
             }
         }
+
     }
 }
