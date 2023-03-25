@@ -1,5 +1,7 @@
 package com.alib.myanimelist;
 
+
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,12 +19,16 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHolder> {
 
+
     private List<net.sandrohc.jikan.model.anime.Anime> animeList;
+    private boolean isLoading = false;
+
     private LayoutInflater inflater;
     private AnimeDatabaseHelper dbHelper;
 
     public AnimeAdapter(Context context, List<net.sandrohc.jikan.model.anime.Anime> animeList) {
         this.animeList = animeList;
+
         this.inflater = LayoutInflater.from(context);
         this.dbHelper = new AnimeDatabaseHelper(context);
     }
@@ -47,6 +53,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
             public void onClick(View v) {
                 net.sandrohc.jikan.model.anime.Anime anime = animeList.get(holder.getAdapterPosition());
                 dbHelper.addAnime(anime.getTitle(), imageUrl);
+
             }
         });
     }
@@ -73,5 +80,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
             ratingTextView = itemView.findViewById(R.id.rating_text_view);
         }
     }
+
+
 }
 
