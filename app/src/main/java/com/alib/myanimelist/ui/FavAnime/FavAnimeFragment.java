@@ -1,5 +1,9 @@
 package com.alib.myanimelist.ui.FavAnime;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -15,7 +19,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.alib.myanimelist.AnimeAdapter;
 import com.alib.myanimelist.Database.AnimeDatabaseHelper;
 import com.alib.myanimelist.R;
 import com.squareup.picasso.Picasso;
@@ -31,7 +34,8 @@ public class FavAnimeFragment extends Fragment {
     private List<Integer> mFavoriteAnimeIds;
     private GridLayoutManager mLayoutManager;
     private FavAnimeAdapter mAdapter;
-
+    private Cursor mCursor; // declare member variable for the cursor used to query the database
+    public static final String ACTION_DATABASE_UPDATED = "com.alib.myanimelist.DATABASE_UPDATED";
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,28 +52,27 @@ public class FavAnimeFragment extends Fragment {
         mLayoutManager = new GridLayoutManager(getContext(), numColumns);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        Cursor cursor = dbHelper.readAllData();
+        // query the database and store the cursor in the member variable
+        mCursor = dbHelper.readAllData();
         List<Integer> animeIds = new ArrayList<>();
-        while (cursor.moveToNext()) {
+        while (mCursor.moveToNext()) {
             animeIds.add(R.drawable.ic_launcher_foreground);
         }
-        mAdapter = new FavAnimeAdapter(animeIds, numColumns, cursor);
+        mAdapter = new FavAnimeAdapter(animeIds, numColumns, mCursor);
         mRecyclerView.setAdapter(mAdapter);
-
-
 
         return view;
     }
 
 
+
     private int getNumColumns() {
-        int numColumns = 2; // Default number of columns
+        int numColumns = 2;
         int orientation = getResources().getConfiguration().orientation;
         int screenWidthDp = getResources().getConfiguration().screenWidthDp;
 
         if (orientation == Configuration.ORIENTATION_LANDSCAPE || screenWidthDp >= 600) {
-            // If the device is in landscape orientation or has a screen width of 600dp or more,
-            // use 3 columns
+
             numColumns = 3;
         }
 
@@ -77,19 +80,28 @@ public class FavAnimeFragment extends Fragment {
     }
 
 
-
     @Override
     public void onResume() {
         super.onResume();
-        // Update the dataset and notify the adapter of the changes
-        Cursor cursor = dbHelper.readAllData();
-        List<Integer> animeIds = new ArrayList<>();
-        while (cursor.moveToNext()) {
-            animeIds.add(R.drawable.ic_launcher_foreground);
+        mRecyclerView.clearOnScrollListeners();
+        IntentFilter filter = new IntentFilter(ACTION_DATABASE_UPDATED);
+        getActivity().registerReceiver(mDatabaseUpdatedReceiver, filter);
+        Cursor newCursor = dbHelper.readAllData();
+        if (newCursor.getCount() != mCursor.getCount()) {
+            mCursor = newCursor;
+            fetchDataAndUpdateAdapter();
         }
-        mAdapter.updateData(animeIds, cursor);
-        mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
+        newCursor.close();
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().unregisterReceiver(mDatabaseUpdatedReceiver);
+    }
+
+
+
 
 
     private class FavAnimeAdapter extends RecyclerView.Adapter<FavAnimeAdapter.ViewHolder> {
@@ -107,52 +119,65 @@ public class FavAnimeFragment extends Fragment {
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fav_anime_item, parent, false);
-            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-            layoutParams.width = parent.getWidth() / mNumColumns;
-            view.setLayoutParams(layoutParams);
-
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.fav_anime_item, parent, false);
             return new ViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             mCursor.moveToPosition(position);
-            String title = mCursor.getString(1);
-            String imageUrl = mCursor.getString(2);
-            holder.titleTextView.setText(title);
-            Picasso.get().load(imageUrl).into(holder.mImageView);
+            String title = mCursor.getString(mCursor.getColumnIndexOrThrow(AnimeDatabaseHelper.COLUMN_TITLE));
+            String imageUrl = mCursor.getString(mCursor.getColumnIndexOrThrow(AnimeDatabaseHelper.COLUMN_IMAGE_URI));
 
+            holder.mTitleTextView.setText(title);
+            Picasso.get().load(imageUrl).into(holder.mImageView);
         }
 
         @Override
         public int getItemCount() {
-            return mAnimeIds.size();
+            return mCursor.getCount();
         }
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-
-            public ImageView mImageView;
-            public TextView titleTextView;
-
-            public ViewHolder(@NonNull View itemView) {
-                super(itemView);
-                mImageView = itemView.findViewById(R.id.anime_image);
-                titleTextView = itemView.findViewById(R.id.anime_title);
-            }
-        }
-
 
         public void updateData(List<Integer> animeIds, Cursor cursor) {
-            mAnimeIds.clear();
-            mAnimeIds.addAll(animeIds);
+            mAnimeIds = animeIds;
             mCursor = cursor;
+            mAdapter.notifyDataSetChanged();
             notifyDataSetChanged();
         }
 
-        public void updateAnimeIds(List<Integer> animeIds) {
-            mAnimeIds = animeIds;
-            notifyDataSetChanged();
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+            ImageView mImageView;
+            TextView mTitleTextView;
+
+            public ViewHolder(View itemView) {
+                super(itemView);
+                mImageView = itemView.findViewById(R.id.anime_image);
+                mTitleTextView = itemView.findViewById(R.id.anime_title);
+
+            }
         }
     }
+
+    private void fetchDataAndUpdateAdapter() {
+        // query the database and store the cursor in the member variable
+        Cursor newCursor = dbHelper.readAllData();
+        List<Integer> animeIds = new ArrayList<>();
+        while (newCursor.moveToNext()) {
+            animeIds.add(R.drawable.ic_launcher_foreground);
+        }
+        mAdapter.updateData(animeIds, newCursor);
+    }
+
+    private BroadcastReceiver mDatabaseUpdatedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null && intent.getAction().equals(ACTION_DATABASE_UPDATED)) {
+                // Fetch new data from the database and update the adapter
+                fetchDataAndUpdateAdapter();
+            }
+        }
+    };
+
 }

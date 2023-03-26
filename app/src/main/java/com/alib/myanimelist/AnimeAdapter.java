@@ -3,6 +3,7 @@ package com.alib.myanimelist;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alib.myanimelist.Database.AnimeDatabaseHelper;
+import com.alib.myanimelist.ui.FavAnime.FavAnimeFragment;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -25,10 +27,11 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
 
     private LayoutInflater inflater;
     private AnimeDatabaseHelper dbHelper;
+    Context mContext;
 
     public AnimeAdapter(Context context, List<net.sandrohc.jikan.model.anime.Anime> animeList) {
         this.animeList = animeList;
-
+        this.mContext = context;
         this.inflater = LayoutInflater.from(context);
         this.dbHelper = new AnimeDatabaseHelper(context);
     }
@@ -43,7 +46,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
     @Override
     public void onBindViewHolder(@NonNull AnimeViewHolder holder, int position) {
         net.sandrohc.jikan.model.anime.Anime anime = animeList.get(position);
-        String imageUrl = anime.images.getPreferredImageUrl();
+        String imageUrl = anime.images.getPreferredImageUrl().toString();
         holder.titleTextView.setText(anime.getTitle());
         Picasso.get().load(imageUrl).into(holder.bannerImageView);
         holder.ratingTextView.setText(String.valueOf(anime.getRating()));
@@ -51,8 +54,14 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
         holder.addToFavBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 net.sandrohc.jikan.model.anime.Anime anime = animeList.get(holder.getAdapterPosition());
                 dbHelper.addAnime(anime.getTitle(), imageUrl);
+                dbHelper.close();
+
+                Intent databaseUpdatedIntent = new Intent(FavAnimeFragment.ACTION_DATABASE_UPDATED);
+                mContext.sendBroadcast(databaseUpdatedIntent);
+
 
             }
         });
@@ -80,7 +89,5 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
             ratingTextView = itemView.findViewById(R.id.rating_text_view);
         }
     }
-
-
 }
 
