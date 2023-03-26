@@ -38,6 +38,7 @@ android {
 
 
 dependencies {
+    
     implementation 'com.squareup.picasso:picasso:2.8'
     implementation 'pw.mihou:Jaikan:v2.1.0' // убрать
     implementation 'net.sandrohc:reactive-jikan:2.2.0'
