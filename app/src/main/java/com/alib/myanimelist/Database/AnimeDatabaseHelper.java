@@ -5,32 +5,30 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Toast;
 
 public class AnimeDatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "anime.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     private static final String TABLE_ANIME = "anime";
     private static final String COLUMN_ID = "_id";
     public static final String COLUMN_TITLE = "title";
     public static final String COLUMN_IMAGE_URI = "imageuri";
     private static final String COLUMN__URL = "url";
-    private static final String COLUMN_RATING = "rating";
+    public static final String COLUMN_MAL_ID = "malID";
+    private Context context;
 
     private static final String CREATE_TABLE_ANIME = "CREATE TABLE " + TABLE_ANIME + "("
             + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + COLUMN_TITLE + " TEXT,"
             + COLUMN_IMAGE_URI + " TEXT,"
-            + COLUMN_RATING + " TEXT"
+            + COLUMN_MAL_ID + " INTEGER" // modified column definition
             + ")";
-
-
-
-
-
 
 
     public AnimeDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     @Override
@@ -44,19 +42,83 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void addAnime(String title,String imageUri){
+    public void addAnime(net.sandrohc.jikan.model.anime.Anime anime){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
+        String title = anime.getTitle();
+        String imageUri = anime.images.getPreferredImageUrl().toString();
+        int malId = anime.getMalId();
+
         cv.put(COLUMN_TITLE, title);
         cv.put(COLUMN_IMAGE_URI,imageUri);
+        cv.put(COLUMN_MAL_ID,malId);
         long result = db.insert(TABLE_ANIME,null, cv);
 
-
+        if(result == -1){
+            Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
+        }else {
+            Toast.makeText(context, String.valueOf(anime.getMalId()), Toast.LENGTH_SHORT).show();
+        }
 
     }
 
+    public void updateAnime(net.sandrohc.jikan.model.anime.Anime anime){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
 
+        String title = anime.getTitle();
+        String imageUri = anime.images.getPreferredImageUrl().toString();
+        int malId = anime.getMalId();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_ANIME + " WHERE " + COLUMN_MAL_ID + " = ?", new String[] { String.valueOf(malId) });
+
+        if (cursor.getCount() == 0) {
+            cv.put(COLUMN_TITLE, title);
+            cv.put(COLUMN_IMAGE_URI,imageUri);
+            cv.put(COLUMN_MAL_ID,malId);
+            long result = db.insert(TABLE_ANIME,null, cv);
+
+            if(result == -1){
+                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
+            }else {
+                Toast.makeText(context, "Added Successfully", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            db.delete(TABLE_ANIME, COLUMN_MAL_ID + " = ?", new String[] { String.valueOf(malId) });
+            Toast.makeText(context, "Deleted Successfully", Toast.LENGTH_SHORT).show();
+        }
+
+        cursor.close();
+    }
+    public void updateData(net.sandrohc.jikan.model.anime.Anime anime) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_ANIME + " WHERE " + COLUMN_MAL_ID + " = ?", new String[]{String.valueOf(anime.getMalId())});
+        if (cursor.moveToFirst()) {
+            ContentValues cv = new ContentValues();
+            cv.put(COLUMN_TITLE, anime.getTitle());
+            cv.put(COLUMN_IMAGE_URI, anime.images.getPreferredImageUrl().toString());
+
+            int rowsAffected = db.update(TABLE_ANIME, cv, COLUMN_MAL_ID + " = ?", new String[]{String.valueOf(anime.getMalId())});
+            if (rowsAffected > 0) {
+                Toast.makeText(context, "Updated Successfully!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, "Failed to update anime", Toast.LENGTH_SHORT).show();
+            }
+        }
+        cursor.close();
+    }
+    public void deleteAnime(long id){
+        SQLiteDatabase db = this.getWritableDatabase();
+        int result = db.delete(TABLE_ANIME, COLUMN_ID + "=?", new String[]{String.valueOf(id)});
+
+        if(result == 0){
+            // Ошибка
+        }else {
+            //success
+        }
+    }
 
 
     public Cursor readAllData(){

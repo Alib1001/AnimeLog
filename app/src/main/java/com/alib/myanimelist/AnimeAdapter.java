@@ -56,7 +56,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
             public void onClick(View v) {
 
                 net.sandrohc.jikan.model.anime.Anime anime = animeList.get(holder.getAdapterPosition());
-                dbHelper.addAnime(anime.getTitle(), imageUrl);
+                dbHelper.updateAnime(anime);
                 dbHelper.close();
 
                 Intent databaseUpdatedIntent = new Intent(FavAnimeFragment.ACTION_DATABASE_UPDATED);
