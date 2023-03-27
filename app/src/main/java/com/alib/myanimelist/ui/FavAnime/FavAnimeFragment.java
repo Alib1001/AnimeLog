@@ -129,6 +129,7 @@ public class FavAnimeFragment extends Fragment {
             mCursor.moveToPosition(position);
             String title = mCursor.getString(mCursor.getColumnIndexOrThrow(AnimeDatabaseHelper.COLUMN_TITLE));
             String imageUrl = mCursor.getString(mCursor.getColumnIndexOrThrow(AnimeDatabaseHelper.COLUMN_IMAGE_URI));
+            int malId = mCursor.getInt(mCursor.getColumnIndexOrThrow(AnimeDatabaseHelper.COLUMN_MAL_ID));
 
             holder.mTitleTextView.setText(title);
             Picasso.get().load(imageUrl).into(holder.mImageView);

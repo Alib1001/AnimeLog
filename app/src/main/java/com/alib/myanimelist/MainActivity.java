@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
 
+
         if (itemId == R.id.navigation_anime_list) {
             fragmentManager.beginTransaction().hide(activeFragment).show(animeListFragment).commit();
             activeFragment = animeListFragment;
