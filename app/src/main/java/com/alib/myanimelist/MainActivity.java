@@ -3,7 +3,7 @@ package com.alib.myanimelist;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import com.alib.myanimelist.ui.AnimeListFragment;
+import com.alib.myanimelist.ui.AnimeList.AnimeListFragment;
 import com.alib.myanimelist.ui.FavAnime.FavAnimeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 

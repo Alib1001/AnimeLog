@@ -1,9 +1,10 @@
-package com.alib.myanimelist;
+package com.alib.myanimelist.ui.AnimeList;
 
 
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,9 +13,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alib.myanimelist.Database.AnimeDatabaseHelper;
+import com.alib.myanimelist.R;
 import com.alib.myanimelist.ui.FavAnime.FavAnimeFragment;
 import com.squareup.picasso.Picasso;
 
@@ -46,6 +49,18 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
     @Override
     public void onBindViewHolder(@NonNull AnimeViewHolder holder, int position) {
         net.sandrohc.jikan.model.anime.Anime anime = animeList.get(position);
+        Drawable fav_filled = ContextCompat.getDrawable(mContext, R.drawable.ic_favorite_filled);
+        Drawable fav_unfilled = ContextCompat.getDrawable(mContext, R.drawable.ic_fav_unfilled);
+
+        if (dbHelper.checkIfFav(anime.getMalId())) {
+            holder.addToFavBtn.setBackground(fav_filled);
+        }
+        else {
+            holder.addToFavBtn.setBackground(fav_unfilled);
+        }
+
+
+
         String imageUrl = anime.images.getPreferredImageUrl().toString();
         holder.titleTextView.setText(anime.getTitle());
         Picasso.get().load(imageUrl).into(holder.bannerImageView);
@@ -58,6 +73,13 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
                 net.sandrohc.jikan.model.anime.Anime anime = animeList.get(holder.getAdapterPosition());
                 dbHelper.updateAnime(anime);
                 dbHelper.close();
+
+                if (dbHelper.checkIfFav(anime.getMalId())) {
+                    holder.addToFavBtn.setBackground(fav_filled);
+                }
+                else {
+                    holder.addToFavBtn.setBackground(fav_unfilled);
+                }
 
                 Intent databaseUpdatedIntent = new Intent(FavAnimeFragment.ACTION_DATABASE_UPDATED);
                 mContext.sendBroadcast(databaseUpdatedIntent);

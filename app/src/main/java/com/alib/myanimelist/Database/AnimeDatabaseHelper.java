@@ -137,4 +137,22 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM " + TABLE_ANIME);
     }
 
+    public boolean checkIfFav(int malId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_ANIME,
+                new String[] { COLUMN_MAL_ID },
+                COLUMN_MAL_ID + " = ?",
+                new String[] { String.valueOf(malId) },
+                null, null, null);
+
+        boolean exists = (cursor.getCount() > 0);
+
+        cursor.close();
+        db.close();
+
+        return exists;
+    }
+
+
 }

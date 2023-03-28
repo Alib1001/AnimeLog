@@ -3,6 +3,7 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/margin_medium"
     android:orientation="horizontal"
+    android:gravity="center"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <ImageView
@@ -42,13 +43,10 @@
     </LinearLayout>
 
     <ImageButton
+        android:layout_gravity="center"
         android:id="@+id/add_to_favorites_button"
         android:layout_width="@dimen/button_width"
         android:layout_height="@dimen/button_height"
-        android:layout_marginTop="@dimen/margin_medium"
-
-        android:background="@drawable/ic_fav_foreground" />
+        android:background="@drawable/ic_fav_unfilled" />
 
 </LinearLayout>
-
-

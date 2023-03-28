@@ -1,6 +1,5 @@
-package com.alib.myanimelist.ui;
+package com.alib.myanimelist.ui.AnimeList;
 
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.alib.myanimelist.AnimeAdapter;
 import com.alib.myanimelist.R;
 
 import net.sandrohc.jikan.Jikan;
