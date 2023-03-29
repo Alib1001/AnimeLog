@@ -1,4 +1,5 @@
 <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/item_anime_linear"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/margin_medium"
@@ -46,7 +47,6 @@
         android:layout_gravity="center"
         android:id="@+id/add_to_favorites_button"
         android:layout_width="@dimen/button_width"
-        android:layout_height="@dimen/button_height"
-        android:background="@drawable/ic_fav_unfilled" />
+        android:layout_height="@dimen/button_height" />
 
 </LinearLayout>

@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.alib.myanimelist.Database.AnimeDatabaseHelper;
 import com.alib.myanimelist.R;
+import com.alib.myanimelist.ui.Details.DetailsActivity;
 import com.alib.myanimelist.ui.FavAnime.FavAnimeFragment;
 import com.squareup.picasso.Picasso;
 
@@ -60,12 +62,23 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
         }
 
 
-
         String imageUrl = anime.images.getPreferredImageUrl().toString();
         holder.titleTextView.setText(anime.getTitle());
         Picasso.get().load(imageUrl).into(holder.bannerImageView);
+        holder.genreTextView.setText(String.valueOf("EP: " + anime.getEpisodes()));
         holder.ratingTextView.setText(String.valueOf(anime.getRating()));
 
+
+
+        holder.item_anime_linear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                net.sandrohc.jikan.model.anime.Anime anime = animeList.get(holder.getAdapterPosition());
+                DetailsActivity.anime = anime;
+                Intent intent = new Intent(mContext, DetailsActivity.class);
+                mContext.startActivity(intent);
+            }
+        });
         holder.addToFavBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,6 +113,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
         public TextView genreTextView;
         public TextView ratingTextView;
         public ImageButton addToFavBtn;
+        public LinearLayout item_anime_linear;
 
         public AnimeViewHolder(View itemView) {
             super(itemView);
@@ -109,6 +123,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
             titleTextView = itemView.findViewById(R.id.title_text_view);
             genreTextView = itemView.findViewById(R.id.genre_text_view);
             ratingTextView = itemView.findViewById(R.id.rating_text_view);
+            item_anime_linear = itemView.findViewById(R.id.item_anime_linear);
         }
     }
 }

@@ -175,7 +175,6 @@ public class FavAnimeFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent != null && intent.getAction().equals(ACTION_DATABASE_UPDATED)) {
-                // Fetch new data from the database and update the adapter
                 fetchDataAndUpdateAdapter();
             }
         }

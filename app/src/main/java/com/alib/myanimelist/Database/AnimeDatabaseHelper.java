@@ -10,7 +10,7 @@ import android.widget.Toast;
 public class AnimeDatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "anime.db";
     private static final int DATABASE_VERSION = 3;
-    private static final String TABLE_ANIME = "anime";
+    public static final String TABLE_ANIME = "anime";
     private static final String COLUMN_ID = "_id";
     public static final String COLUMN_TITLE = "title";
     public static final String COLUMN_IMAGE_URI = "imageuri";
