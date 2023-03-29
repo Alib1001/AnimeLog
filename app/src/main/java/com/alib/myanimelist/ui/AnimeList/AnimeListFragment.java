@@ -1,5 +1,6 @@
 package com.alib.myanimelist.ui.AnimeList;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +28,14 @@ public class AnimeListFragment extends Fragment {
     private RecyclerView recyclerView;
     private AnimeAdapter animeAdapter;
     private boolean isLoading = false;
-    private List<net.sandrohc.jikan.model.anime.Anime> animeList;
+    private List<Anime> animeList;
+
+    private int visibleItemCount;
+    private int firstVisibleItem;
+    private int totalItemCount;
+    private boolean isLoadingImages = false;
+    private boolean isScrolling = false;
+    private int preloadOffset = 10;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -46,11 +54,10 @@ public class AnimeListFragment extends Fragment {
 
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 int totalItemCount = layoutManager.getItemCount();
-                int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                int lastVisibleItem = layoutManager.findLastVisibleItemPosition() ;
 
-                if (!isLoading && totalItemCount <= (lastVisibleItem + 5)) {
-                    // Load more data
-                    loadMoreData();
+                if (!isLoading && totalItemCount <= (lastVisibleItem + 20)) {
+                    new LoadMoreDataTask().execute();
                 }
             }
         });
@@ -62,10 +69,44 @@ public class AnimeListFragment extends Fragment {
             .httpClientCustomizer(httpClient -> httpClient.resolver(DefaultAddressResolverGroup.INSTANCE))
             .build();
 
+    private class LoadMoreDataTask extends AsyncTask<Void, Void, List<Anime>> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            isLoading = true;
+
+        }
+
+        @Override
+        protected List<Anime> doInBackground(Void... voids) {
+            int currentPage = animeList.size() / 50 + 1;
+            try {
+                return jikan.query().anime().top()
+                        .page(currentPage)
+                        .execute()
+                        .collectList()
+                        .block();
+            } catch (JikanQueryException e) {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(List<Anime> results) {
+            super.onPostExecute(results);
+            isLoading = false;
+            if (results != null && !results.isEmpty()) {
+                animeList.addAll(results);
+                animeAdapter.notifyDataSetChanged();
+            } else {
+                Toast.makeText(getContext(), "No more data to load", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     private List<Anime> getAnimeList() {
-        Jikan jikan = new Jikan.JikanBuilder()
-                .httpClientCustomizer(httpClient -> httpClient.resolver(DefaultAddressResolverGroup.INSTANCE))
-                .build();
+
 
         List<Anime> results = new ArrayList<>();
 
@@ -82,32 +123,5 @@ public class AnimeListFragment extends Fragment {
         return results;
     }
 
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        animeAdapter.notifyDataSetChanged();
-    }
-
-    private void loadMoreData() {
-        isLoading = true;
-
-        int currentPage = animeList.size() / 10 + 1;
-        try {
-            List<Anime> pageResults = jikan.query().anime().top()
-                    .page(currentPage)
-                    .execute()
-                    .collectList()
-                    .block();
-            if (pageResults != null && !pageResults.isEmpty()) {
-                animeList.addAll(pageResults);
-                animeAdapter.notifyDataSetChanged();
-            }
-        } catch (JikanQueryException e) {
-            Toast.makeText(getContext(), "Error loading data", Toast.LENGTH_SHORT).show();
-        }
-
-        isLoading = false;
-    }
-
 }
+
