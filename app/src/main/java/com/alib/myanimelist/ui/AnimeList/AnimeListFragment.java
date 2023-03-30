@@ -15,11 +15,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.alib.myanimelist.R;
 
 import net.sandrohc.jikan.Jikan;
+import net.sandrohc.jikan.exception.JikanException;
 import net.sandrohc.jikan.exception.JikanQueryException;
 import net.sandrohc.jikan.model.anime.Anime;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import io.netty.resolver.DefaultAddressResolverGroup;
 
@@ -28,14 +32,15 @@ public class AnimeListFragment extends Fragment {
     private RecyclerView recyclerView;
     private AnimeAdapter animeAdapter;
     private boolean isLoading = false;
-    private List<Anime> animeList;
+    private List<Anime> animeList = new ArrayList<>();
 
-    private int visibleItemCount;
-    private int firstVisibleItem;
-    private int totalItemCount;
-    private boolean isLoadingImages = false;
-    private boolean isScrolling = false;
-    private int preloadOffset = 10;
+    private int preloadOffset = 200;
+
+    private Jikan jikan = new Jikan.JikanBuilder()
+            .httpClientCustomizer(httpClient -> httpClient.resolver(DefaultAddressResolverGroup.INSTANCE))
+            .build();
+
+    private int currentPage = 1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,31 +48,52 @@ public class AnimeListFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        animeList = getAnimeList();
+
         animeAdapter = new AnimeAdapter(getContext(), animeList);
         recyclerView.setAdapter(animeAdapter);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE && !isLoading) {
+                    LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                    int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
+                    int totalItemCount = layoutManager.getItemCount();
+                    if (totalItemCount - lastVisibleItemPosition <= preloadOffset) {
+                        loadMoreData();
+                    }
+                }
+            }
+
+            @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 int totalItemCount = layoutManager.getItemCount();
-                int lastVisibleItem = layoutManager.findLastVisibleItemPosition() ;
+                int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
 
-                if (!isLoading && totalItemCount <= (lastVisibleItem + 20)) {
-                    new LoadMoreDataTask().execute();
+                int visibleItemCount = layoutManager.getChildCount();
+                int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
+                boolean isScrolling = (visibleItemCount + firstVisibleItem) >= totalItemCount - preloadOffset;
+
+                if (!isLoading && isScrolling) {
+                    loadMoreData();
                 }
             }
         });
 
+        loadMoreData();
+
         return view;
     }
 
-    Jikan jikan = new Jikan.JikanBuilder()
-            .httpClientCustomizer(httpClient -> httpClient.resolver(DefaultAddressResolverGroup.INSTANCE))
-            .build();
+    private void loadMoreData() {
+        if (!isLoading) {
+            isLoading = true;
+            new LoadMoreDataTask().execute();
+        }
+    }
 
     private class LoadMoreDataTask extends AsyncTask<Void, Void, List<Anime>> {
 
@@ -75,19 +101,17 @@ public class AnimeListFragment extends Fragment {
         protected void onPreExecute() {
             super.onPreExecute();
             isLoading = true;
-
         }
 
         @Override
         protected List<Anime> doInBackground(Void... voids) {
-            int currentPage = animeList.size() / 50 + 1;
             try {
                 return jikan.query().anime().top()
                         .page(currentPage)
+                        .limit(50)
                         .execute()
-                        .collectList()
-                        .block();
-            } catch (JikanQueryException e) {
+                        .collectList().block();
+            } catch (JikanException e) {
                 return null;
             }
         }
@@ -99,29 +123,11 @@ public class AnimeListFragment extends Fragment {
             if (results != null && !results.isEmpty()) {
                 animeList.addAll(results);
                 animeAdapter.notifyDataSetChanged();
+                currentPage++;
             } else {
                 Toast.makeText(getContext(), "No more data to load", Toast.LENGTH_SHORT).show();
             }
         }
     }
-
-    private List<Anime> getAnimeList() {
-
-
-        List<Anime> results = new ArrayList<>();
-
-        try {
-            results = jikan.query().anime().top()
-                    .page(1)
-                    .execute()
-                    .collectList()
-                    .block();
-        } catch (JikanQueryException e) {
-            throw new RuntimeException(e);
-        }
-
-        return results;
-    }
-
 }
 

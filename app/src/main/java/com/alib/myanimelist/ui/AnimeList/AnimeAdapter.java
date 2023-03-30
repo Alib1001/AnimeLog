@@ -23,6 +23,8 @@ import com.alib.myanimelist.ui.Details.DetailsActivity;
 import com.alib.myanimelist.ui.FavAnime.FavAnimeFragment;
 import com.squareup.picasso.Picasso;
 
+import net.sandrohc.jikan.model.anime.Anime;
+
 import java.util.List;
 public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHolder> {
 
@@ -73,9 +75,8 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
         holder.item_anime_linear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                net.sandrohc.jikan.model.anime.Anime anime = animeList.get(holder.getAdapterPosition());
-                DetailsActivity.anime = anime;
                 Intent intent = new Intent(mContext, DetailsActivity.class);
+                intent.putExtra("anime", anime);
                 mContext.startActivity(intent);
             }
         });
@@ -83,9 +84,9 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
             @Override
             public void onClick(View v) {
 
-                net.sandrohc.jikan.model.anime.Anime anime = animeList.get(holder.getAdapterPosition());
-                dbHelper.updateAnime(anime);
-                dbHelper.close();
+               Anime anime = animeList.get(holder.getAdapterPosition());
+               dbHelper.updateAnime(anime);
+               dbHelper.close();
 
                 if (dbHelper.checkIfFav(anime.getMalId())) {
                     holder.addToFavBtn.setBackground(fav_filled);
