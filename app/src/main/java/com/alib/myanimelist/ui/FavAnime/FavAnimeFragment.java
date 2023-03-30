@@ -34,7 +34,7 @@ public class FavAnimeFragment extends Fragment {
     private List<Integer> mFavoriteAnimeIds;
     private GridLayoutManager mLayoutManager;
     private FavAnimeAdapter mAdapter;
-    private Cursor mCursor; // declare member variable for the cursor used to query the database
+    private Cursor mCursor;
     public static final String ACTION_DATABASE_UPDATED = "com.alib.myanimelist.DATABASE_UPDATED";
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,7 +52,6 @@ public class FavAnimeFragment extends Fragment {
         mLayoutManager = new GridLayoutManager(getContext(), numColumns);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        // query the database and store the cursor in the member variable
         mCursor = dbHelper.readAllData();
         List<Integer> animeIds = new ArrayList<>();
         while (mCursor.moveToNext()) {
@@ -99,10 +98,6 @@ public class FavAnimeFragment extends Fragment {
         super.onPause();
         getActivity().unregisterReceiver(mDatabaseUpdatedReceiver);
     }
-
-
-
-
 
     private class FavAnimeAdapter extends RecyclerView.Adapter<FavAnimeAdapter.ViewHolder> {
 
@@ -162,7 +157,6 @@ public class FavAnimeFragment extends Fragment {
     }
 
     private void fetchDataAndUpdateAdapter() {
-        // query the database and store the cursor in the member variable
         Cursor newCursor = dbHelper.readAllData();
         List<Integer> animeIds = new ArrayList<>();
         while (newCursor.moveToNext()) {
