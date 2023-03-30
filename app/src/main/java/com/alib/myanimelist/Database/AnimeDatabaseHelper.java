@@ -22,7 +22,7 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + COLUMN_TITLE + " TEXT,"
             + COLUMN_IMAGE_URI + " TEXT,"
-            + COLUMN_MAL_ID + " INTEGER" // modified column definition
+            + COLUMN_MAL_ID + " INTEGER"
             + ")";
 
 
