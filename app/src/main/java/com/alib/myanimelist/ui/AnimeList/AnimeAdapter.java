@@ -70,10 +70,9 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
         holder.ratingTextView.setText(String.valueOf(anime.getRating()));
 
 
-
         holder.item_anime_linear.setOnClickListener(v -> {
             Intent intent = new Intent(mContext, DetailsActivity.class);
-            intent.putExtra("anime", anime);
+            intent.putExtra("malId",anime.getMalId());
             mContext.startActivity(intent);
         });
         holder.addToFavBtn.setOnClickListener(v -> {
@@ -120,5 +119,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
             item_anime_linear = itemView.findViewById(R.id.item_anime_linear);
         }
     }
+
+
 }
 

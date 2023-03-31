@@ -21,7 +21,7 @@ import io.netty.resolver.DefaultAddressResolverGroup;
 
 public class DetailsActivity extends AppCompatActivity {
     private AnimeDatabaseHelper dbHelper;
-    private Anime anime;
+    private int malId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +36,7 @@ public class DetailsActivity extends AppCompatActivity {
         dbHelper = new AnimeDatabaseHelper(getApplicationContext());
 
         Intent intent = getIntent();
-        anime = (Anime) intent.getSerializableExtra("anime");
+        malId = intent.getIntExtra("malId",1);
 
 
         Jikan jikan = new Jikan.JikanBuilder()
@@ -44,28 +44,29 @@ public class DetailsActivity extends AppCompatActivity {
                 .build();
 
         try {
-            Anime animeForDescription = jikan.query().anime().get(anime.getMalId())
+            Anime anime = jikan.query().anime().get(malId)
                     .execute()
                     .block();
 
-            String description = animeForDescription.getSynopsis();
+            String description = anime.getSynopsis() + "\n" + anime.getBackground() ;
+            String title = anime.getTitle();
+            String bannerImageUrl = anime.getImages().getPreferredImageUrl();
+
+            titleTextView.setText(title);
             descriptionTextView.setText(description);
+            Picasso.get().load(bannerImageUrl).into(bannerImageView);
+
+            addToFavBtn.setOnClickListener(v -> {
+                dbHelper.updateAnime(anime);
+                dbHelper.close();
+
+                Intent databaseUpdatedIntent = new Intent(FavAnimeFragment.ACTION_DATABASE_UPDATED);
+                getApplicationContext().sendBroadcast(databaseUpdatedIntent);
+            });
         } catch (JikanQueryException e) {
             throw new RuntimeException(e);
         }
 
-        String title = anime.getTitle();
-        String bannerImageUrl = anime.getImages().getPreferredImageUrl();
-        titleTextView.setText(title);
-        Picasso.get().load(bannerImageUrl).into(bannerImageView);
-
-        addToFavBtn.setOnClickListener(v -> {
-            dbHelper.updateAnime(anime);
-            dbHelper.close();
-
-            Intent databaseUpdatedIntent = new Intent(FavAnimeFragment.ACTION_DATABASE_UPDATED);
-            getApplicationContext().sendBroadcast(databaseUpdatedIntent);
-        });
     }
 }
 
