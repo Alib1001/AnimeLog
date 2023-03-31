@@ -1,5 +1,6 @@
 package com.alib.myanimelist.ui.AnimeList;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,27 +17,23 @@ import com.alib.myanimelist.R;
 
 import net.sandrohc.jikan.Jikan;
 import net.sandrohc.jikan.exception.JikanException;
-import net.sandrohc.jikan.exception.JikanQueryException;
 import net.sandrohc.jikan.model.anime.Anime;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 
 import io.netty.resolver.DefaultAddressResolverGroup;
 
 public class AnimeListFragment extends Fragment {
 
-    private RecyclerView recyclerView;
     private AnimeAdapter animeAdapter;
     private boolean isLoading = false;
     private List<Anime> animeList = new ArrayList<>();
 
-    private int preloadOffset = 200;
+    private final int preloadOffset = 20;
 
-    private Jikan jikan = new Jikan.JikanBuilder()
+    private final Jikan jikan = new Jikan.JikanBuilder()
             .httpClientCustomizer(httpClient -> httpClient.resolver(DefaultAddressResolverGroup.INSTANCE))
             .build();
 
@@ -45,7 +42,7 @@ public class AnimeListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_anime_list, container, false);
-        recyclerView = view.findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -71,7 +68,6 @@ public class AnimeListFragment extends Fragment {
                 super.onScrolled(recyclerView, dx, dy);
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 int totalItemCount = layoutManager.getItemCount();
-                int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
 
                 int visibleItemCount = layoutManager.getChildCount();
                 int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
@@ -95,6 +91,7 @@ public class AnimeListFragment extends Fragment {
         }
     }
 
+    @SuppressLint("StaticFieldLeak")
     private class LoadMoreDataTask extends AsyncTask<Void, Void, List<Anime>> {
 
         @Override
@@ -121,13 +118,15 @@ public class AnimeListFragment extends Fragment {
             super.onPostExecute(results);
             isLoading = false;
             if (results != null && !results.isEmpty()) {
+                int startPosition = animeList.size();
                 animeList.addAll(results);
-                animeAdapter.notifyDataSetChanged();
+                animeAdapter.notifyItemRangeInserted(startPosition, results.size());
                 currentPage++;
             } else {
                 Toast.makeText(getContext(), "No more data to load", Toast.LENGTH_SHORT).show();
             }
         }
+
     }
 }
 

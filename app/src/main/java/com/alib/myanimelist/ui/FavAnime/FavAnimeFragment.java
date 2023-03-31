@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.alib.myanimelist.Database.AnimeDatabaseHelper;
 import com.alib.myanimelist.R;
+import com.alib.myanimelist.ui.Details.DetailsActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -29,10 +30,7 @@ import java.util.List;
 
 public class FavAnimeFragment extends Fragment {
     private AnimeDatabaseHelper dbHelper;
-    List<net.sandrohc.jikan.model.anime.Anime> animeList;
     private RecyclerView mRecyclerView;
-    private List<Integer> mFavoriteAnimeIds;
-    private GridLayoutManager mLayoutManager;
     private FavAnimeAdapter mAdapter;
     private Cursor mCursor;
     public static final String ACTION_DATABASE_UPDATED = "com.alib.myanimelist.DATABASE_UPDATED";
@@ -49,15 +47,11 @@ public class FavAnimeFragment extends Fragment {
         mRecyclerView = view.findViewById(R.id.fav_anime_list);
 
         int numColumns = getNumColumns();
-        mLayoutManager = new GridLayoutManager(getContext(), numColumns);
+        GridLayoutManager mLayoutManager = new GridLayoutManager(getContext(), numColumns);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mCursor = dbHelper.readAllData();
-        List<Integer> animeIds = new ArrayList<>();
-        while (mCursor.moveToNext()) {
-            animeIds.add(R.drawable.ic_launcher_foreground);
-        }
-        mAdapter = new FavAnimeAdapter(animeIds, numColumns, mCursor);
+        mAdapter = new FavAnimeAdapter(numColumns, mCursor);
         mRecyclerView.setAdapter(mAdapter);
 
         return view;
@@ -101,13 +95,10 @@ public class FavAnimeFragment extends Fragment {
 
     private class FavAnimeAdapter extends RecyclerView.Adapter<FavAnimeAdapter.ViewHolder> {
 
-        private List<Integer> mAnimeIds;
-        private int mNumColumns;
         private Cursor mCursor;
 
-        public FavAnimeAdapter(List<Integer> animeIds, int numColumns, Cursor cursor) {
-            mAnimeIds = animeIds;
-            mNumColumns = numColumns;
+        public FavAnimeAdapter(int numColumns, Cursor cursor) {
+
             mCursor = cursor;
         }
 
@@ -128,6 +119,13 @@ public class FavAnimeFragment extends Fragment {
 
             holder.mTitleTextView.setText(title);
             Picasso.get().load(imageUrl).into(holder.mImageView);
+
+            holder.mImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
         }
 
         @Override
@@ -135,8 +133,7 @@ public class FavAnimeFragment extends Fragment {
             return mCursor.getCount();
         }
 
-        public void updateData(List<Integer> animeIds, Cursor cursor) {
-            mAnimeIds = animeIds;
+        public void updateData(Cursor cursor) {
             mCursor = cursor;
             mAdapter.notifyDataSetChanged();
             notifyDataSetChanged();
@@ -162,10 +159,10 @@ public class FavAnimeFragment extends Fragment {
         while (newCursor.moveToNext()) {
             animeIds.add(R.drawable.ic_launcher_foreground);
         }
-        mAdapter.updateData(animeIds, newCursor);
+        mAdapter.updateData(newCursor);
     }
 
-    private BroadcastReceiver mDatabaseUpdatedReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mDatabaseUpdatedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent != null && intent.getAction().equals(ACTION_DATABASE_UPDATED)) {

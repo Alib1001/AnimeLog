@@ -16,7 +16,7 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_IMAGE_URI = "imageuri";
     private static final String COLUMN__URL = "url";
     public static final String COLUMN_MAL_ID = "malID";
-    private Context context;
+    private final Context context;
 
     private static final String CREATE_TABLE_ANIME = "CREATE TABLE " + TABLE_ANIME + "("
             + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -47,7 +47,7 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
 
         String title = anime.getTitle();
-        String imageUri = anime.images.getPreferredImageUrl().toString();
+        String imageUri = anime.images.getPreferredImageUrl();
         int malId = anime.getMalId();
 
         cv.put(COLUMN_TITLE, title);
@@ -68,7 +68,7 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
 
         String title = anime.getTitle();
-        String imageUri = anime.images.getPreferredImageUrl().toString();
+        String imageUri = anime.images.getPreferredImageUrl();
         int malId = anime.getMalId();
 
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_ANIME + " WHERE " + COLUMN_MAL_ID + " = ?", new String[] { String.valueOf(malId) });
@@ -98,7 +98,7 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             ContentValues cv = new ContentValues();
             cv.put(COLUMN_TITLE, anime.getTitle());
-            cv.put(COLUMN_IMAGE_URI, anime.images.getPreferredImageUrl().toString());
+            cv.put(COLUMN_IMAGE_URI, anime.images.getPreferredImageUrl());
 
             int rowsAffected = db.update(TABLE_ANIME, cv, COLUMN_MAL_ID + " = ?", new String[]{String.valueOf(anime.getMalId())});
             if (rowsAffected > 0) {
@@ -114,9 +114,9 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
         int result = db.delete(TABLE_ANIME, COLUMN_ID + "=?", new String[]{String.valueOf(id)});
 
         if(result == 0){
-            // Ошибка
+            Toast.makeText(context,"Error",Toast.LENGTH_SHORT).show();
         }else {
-            //success
+            Toast.makeText(context,"Deleted successfully",Toast.LENGTH_SHORT).show();
         }
     }
 

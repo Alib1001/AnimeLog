@@ -29,11 +29,10 @@ import java.util.List;
 public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHolder> {
 
 
-    private List<net.sandrohc.jikan.model.anime.Anime> animeList;
-    private boolean isLoading = false;
+    private final List<net.sandrohc.jikan.model.anime.Anime> animeList;
 
-    private LayoutInflater inflater;
-    private AnimeDatabaseHelper dbHelper;
+    private final LayoutInflater inflater;
+    private final AnimeDatabaseHelper dbHelper;
     Context mContext;
 
     public AnimeAdapter(Context context, List<net.sandrohc.jikan.model.anime.Anime> animeList) {
@@ -64,7 +63,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
         }
 
 
-        String imageUrl = anime.images.getPreferredImageUrl().toString();
+        String imageUrl = anime.images.getPreferredImageUrl();
         holder.titleTextView.setText(anime.getTitle());
         Picasso.get().load(imageUrl).into(holder.bannerImageView);
         holder.genreTextView.setText(String.valueOf("EP: " + anime.getEpisodes()));
@@ -72,34 +71,28 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
 
 
 
-        holder.item_anime_linear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(mContext, DetailsActivity.class);
-                intent.putExtra("anime", anime);
-                mContext.startActivity(intent);
-            }
+        holder.item_anime_linear.setOnClickListener(v -> {
+            Intent intent = new Intent(mContext, DetailsActivity.class);
+            intent.putExtra("anime", anime);
+            mContext.startActivity(intent);
         });
-        holder.addToFavBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        holder.addToFavBtn.setOnClickListener(v -> {
 
-               Anime anime = animeList.get(holder.getAdapterPosition());
-               dbHelper.updateAnime(anime);
-               dbHelper.close();
+           Anime anime1 = animeList.get(holder.getAdapterPosition());
+           dbHelper.updateAnime(anime1);
+           dbHelper.close();
 
-                if (dbHelper.checkIfFav(anime.getMalId())) {
-                    holder.addToFavBtn.setBackground(fav_filled);
-                }
-                else {
-                    holder.addToFavBtn.setBackground(fav_unfilled);
-                }
-
-                Intent databaseUpdatedIntent = new Intent(FavAnimeFragment.ACTION_DATABASE_UPDATED);
-                mContext.sendBroadcast(databaseUpdatedIntent);
-
-
+            if (dbHelper.checkIfFav(anime1.getMalId())) {
+                holder.addToFavBtn.setBackground(fav_filled);
             }
+            else {
+                holder.addToFavBtn.setBackground(fav_unfilled);
+            }
+
+            Intent databaseUpdatedIntent = new Intent(FavAnimeFragment.ACTION_DATABASE_UPDATED);
+            mContext.sendBroadcast(databaseUpdatedIntent);
+
+
         });
     }
 
