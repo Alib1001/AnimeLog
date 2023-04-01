@@ -48,7 +48,7 @@ public class DetailsActivity extends AppCompatActivity {
                     .execute()
                     .block();
 
-            String description = anime.getSynopsis() + "\n" + anime.getBackground() ;
+            String description = anime.getSynopsis() + "\n\n\n" +  anime.getBackground() ;
             String title = anime.getTitle();
             String bannerImageUrl = anime.getImages().getPreferredImageUrl();
 
