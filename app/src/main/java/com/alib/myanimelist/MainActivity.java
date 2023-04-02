@@ -1,10 +1,13 @@
+
 package com.alib.myanimelist;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alib.myanimelist.ui.AnimeList.AnimeListFragment;
 import com.alib.myanimelist.ui.FavAnime.FavAnimeFragment;
@@ -13,9 +16,19 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import net.sandrohc.jikan.Jikan;
+import net.sandrohc.jikan.exception.JikanQueryException;
+import net.sandrohc.jikan.model.anime.Anime;
+import net.sandrohc.jikan.model.anime.AnimeOrderBy;
+import net.sandrohc.jikan.model.enums.SortOrder;
+
+import java.util.Collection;
+
+import io.netty.resolver.DefaultAddressResolverGroup;
 
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -25,6 +38,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     private Fragment animeListFragment;
     private Fragment favoriteAnimeFragment;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,25 +59,56 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         fragmentManager.beginTransaction().add(R.id.container, animeListFragment, "1").commit();
         activeFragment = animeListFragment;
 
-        // Get the default ActionBar
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            // Set the custom layout for the ActionBar
-            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-            actionBar.setCustomView(R.layout.actionbar_layout);
 
-            // Retrieve the views and set their attributes
-            TextView titleView = actionBar.getCustomView().findViewById(R.id.actionbar_title);
-            titleView.setText(getTitle()); // Set the title to the current activity title
+        TextView titleView = findViewById(R.id.actionbar_title);
+
+        SearchView searchView = findViewById(R.id.actionbar_search);
 
 
-            ImageButton searchButton = actionBar.getCustomView().findViewById(R.id.actionbar_search);
-            searchButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Perform search action here
-                }
-            });
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                titleView.setVisibility(View.GONE);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                return true;
+            }
+        });
+
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                titleView.setVisibility(View.GONE);
+            }
+        });
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                titleView.setVisibility(View.VISIBLE);
+                return false;
+            }
+        });
+
+
+        Jikan jikan = new Jikan.JikanBuilder()
+                .httpClientCustomizer(httpClient -> httpClient.resolver(DefaultAddressResolverGroup.INSTANCE))
+                .build();
+
+
+        try {
+            Collection<Anime> results = jikan.query().anime().search()
+                    .query("sword art online")
+                    .orderBy(AnimeOrderBy.POPULARITY, SortOrder.ASCENDING)
+                    .execute()
+                    .collectList()
+                    .block();
+        } catch (JikanQueryException e) {
+            throw new RuntimeException(e);
         }
 
     }
@@ -73,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         if (itemId == R.id.navigation_anime_list) {
             fragmentManager.beginTransaction().hide(activeFragment).show(animeListFragment).commit();
             activeFragment = animeListFragment;
+
             return true;
         } else if (itemId == R.id.navigation_favorite_anime) {
             fragmentManager.beginTransaction().hide(activeFragment).show(favoriteAnimeFragment).commit();
