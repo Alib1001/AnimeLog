@@ -154,5 +154,18 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
         return exists;
     }
 
+    public Cursor searchData(String title){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_ANIME,
+                null,
+                COLUMN_TITLE + " LIKE ?",
+                new String[]{"%" + title + "%"},
+                null, null, null);
+
+        return cursor;
+    }
+
+
 
 }

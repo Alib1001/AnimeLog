@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alib.myanimelist.SearchFragment.SearchFragment;
 import com.alib.myanimelist.ui.AnimeList.AnimeListFragment;
 import com.alib.myanimelist.ui.FavAnime.FavAnimeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -26,20 +27,22 @@ import net.sandrohc.jikan.model.anime.Anime;
 import net.sandrohc.jikan.model.anime.AnimeOrderBy;
 import net.sandrohc.jikan.model.enums.SortOrder;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import io.netty.resolver.DefaultAddressResolverGroup;
 
 
-public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener,SearchView.OnQueryTextListener {
 
     private FragmentManager fragmentManager;
     private Fragment activeFragment;
+    private Fragment previousFragment;
 
     private Fragment animeListFragment;
     private Fragment favoriteAnimeFragment;
-
-
+    private Fragment searchFragment;
 
 
     @Override
@@ -54,10 +57,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         animeListFragment = new AnimeListFragment();
         favoriteAnimeFragment = new FavAnimeFragment();
+        searchFragment = new SearchFragment();
 
+        fragmentManager.beginTransaction().add(R.id.container, searchFragment, "3").hide(searchFragment).commit();
         fragmentManager.beginTransaction().add(R.id.container, favoriteAnimeFragment, "2").hide(favoriteAnimeFragment).commit();
         fragmentManager.beginTransaction().add(R.id.container, animeListFragment, "1").commit();
+
         activeFragment = animeListFragment;
+        previousFragment = activeFragment;
 
 
         TextView titleView = findViewById(R.id.actionbar_title);
@@ -83,6 +90,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             @Override
             public void onClick(View v) {
                 titleView.setVisibility(View.GONE);
+                fragmentManager.beginTransaction().hide(activeFragment).show(searchFragment).commit();
+                activeFragment = searchFragment;
             }
         });
 
@@ -90,6 +99,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             @Override
             public boolean onClose() {
                 titleView.setVisibility(View.VISIBLE);
+                fragmentManager.beginTransaction().hide(activeFragment).show(previousFragment).commit();
+                activeFragment = previousFragment;
                 return false;
             }
         });
@@ -119,15 +130,27 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         if (itemId == R.id.navigation_anime_list) {
             fragmentManager.beginTransaction().hide(activeFragment).show(animeListFragment).commit();
+            // Toast.makeText(getApplicationContext(),animeListFragment.getTag(),Toast.LENGTH_SHORT).show();
             activeFragment = animeListFragment;
+            previousFragment = activeFragment;
 
             return true;
         } else if (itemId == R.id.navigation_favorite_anime) {
             fragmentManager.beginTransaction().hide(activeFragment).show(favoriteAnimeFragment).commit();
             activeFragment = favoriteAnimeFragment;
+            previousFragment = activeFragment;
             return true;
         }
 
+        return false;
+    }
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
         return false;
     }
 

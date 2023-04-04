@@ -8,7 +8,7 @@
 
     <item
         android:id="@+id/navigation_favorite_anime"
-        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:icon="@drawable/ic_favorite_filled"
         android:title="@string/title_dashboard" />
 
 
