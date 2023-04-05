@@ -1,9 +1,11 @@
 package com.alib.myanimelist.SearchFragment;
 
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alib.myanimelist.R;
+import com.squareup.picasso.Picasso;
 
 import net.sandrohc.jikan.Jikan;
 import net.sandrohc.jikan.exception.JikanQueryException;
@@ -51,8 +54,6 @@ public class SearchFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-
-        // Call searchAnimeinAPI method to get anime data
         searchAnimeinAPI();
     }
 
@@ -62,8 +63,7 @@ public class SearchFragment extends Fragment {
                     .httpClientCustomizer(httpClient -> httpClient.resolver(DefaultAddressResolverGroup.INSTANCE))
                     .build();
 
-            // Get anime search result and add titles to data list
-            List<String> data = new ArrayList<>();
+            List<AnimeData> dataList = new ArrayList<>();
             Collection<Anime> searchResult = jikan.query().anime().search()
                     .query("sword art online")
                     .orderBy(AnimeOrderBy.POPULARITY, SortOrder.ASCENDING)
@@ -71,22 +71,22 @@ public class SearchFragment extends Fragment {
                     .collectList()
                     .block();
 
-            // Extract the title of each anime and add to the data list
             for (Anime anime : searchResult) {
-                data.add(anime.getTitle());
+                String title = anime.getTitle();
+                String imageUrl = anime.images.getPreferredImageUrl();
+                dataList.add(new AnimeData(title, imageUrl));
             }
 
-            // Set the data to the adapter
-            mAdapter.setData(data);
+            mAdapter.setData(dataList);
         } catch (JikanQueryException e) {
             throw new RuntimeException(e);
         }
     }
 
     private static class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
-        private List<String> mData = new ArrayList<>();
+        private List<AnimeData> mData = new ArrayList<>();
 
-        public void setData(List<String> data) {
+        public void setData(List<AnimeData> data) {
             mData.clear();
             mData.addAll(data);
             notifyDataSetChanged();
@@ -96,14 +96,19 @@ public class SearchFragment extends Fragment {
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(android.R.layout.simple_list_item_1, parent, false);
+                    .inflate(R.layout.item_search_anime, parent, false);
             return new ViewHolder(itemView);
         }
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            holder.mTextView.setText(mData.get(position));
+            AnimeData item = mData.get(position);
+            String title = item.getTitle();
+            String imageUrl = item.getImageUrl();
+            holder.animeTextView.setText(title);
+            Picasso.get().load(imageUrl).into(holder.animeImageView);
         }
+
 
         @Override
         public int getItemCount() {
@@ -111,11 +116,13 @@ public class SearchFragment extends Fragment {
         }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
-            TextView mTextView;
+            TextView animeTextView;
+            ImageView animeImageView;
 
             ViewHolder(View itemView) {
                 super(itemView);
-                mTextView = itemView.findViewById(android.R.id.text1);
+                animeTextView = itemView.findViewById(R.id.title_text_view);
+                animeImageView = itemView.findViewById(R.id.image_view);
             }
         }
     }
