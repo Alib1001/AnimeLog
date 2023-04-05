@@ -1,5 +1,7 @@
 package com.alib.myanimelist.SearchFragment;
 
+import android.annotation.SuppressLint;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -15,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.alib.myanimelist.Database.AnimeDatabaseHelper;
 import com.alib.myanimelist.R;
 import com.squareup.picasso.Picasso;
 
@@ -35,9 +38,7 @@ public class SearchFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private MyAdapter mAdapter;
 
-    public static SearchFragment newInstance() {
-        return new SearchFragment();
-    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -47,6 +48,8 @@ public class SearchFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mAdapter = new MyAdapter();
         mRecyclerView.setAdapter(mAdapter);
+
+
         return rootView;
     }
 
@@ -54,7 +57,7 @@ public class SearchFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        searchAnimeinAPI();
+        searchInDB();
     }
 
     private void searchAnimeinAPI() {
@@ -82,6 +85,37 @@ public class SearchFragment extends Fragment {
             throw new RuntimeException(e);
         }
     }
+
+    private List<AnimeData> getDataFromDB(String title) {
+
+        AnimeDatabaseHelper dbHelper = new AnimeDatabaseHelper(getContext());
+
+        List<AnimeData> dataList = new ArrayList<>();
+
+        Cursor cursor = dbHelper.searchData(title);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                // Retrieve the values for each column in the current row
+                @SuppressLint("Range") String animeTitle = cursor.getString(cursor.getColumnIndex(AnimeDatabaseHelper.COLUMN_TITLE));
+                @SuppressLint("Range") String imageUrl = cursor.getString(cursor.getColumnIndex(AnimeDatabaseHelper.COLUMN_IMAGE_URI));
+
+                // Add the retrieved data to the list
+                dataList.add(new AnimeData(animeTitle, imageUrl));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        dbHelper.close();
+
+        return dataList;
+    }
+
+    private void searchInDB() {
+        List<AnimeData> dataList = getDataFromDB("Monster");
+        mAdapter.setData(dataList);
+    }
+
 
     private static class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         private List<AnimeData> mData = new ArrayList<>();
