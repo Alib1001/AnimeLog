@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alib.myanimelist.Database.AnimeDatabaseHelper;
-import com.alib.myanimelist.OnSearchListener;
 import com.alib.myanimelist.R;
 import com.alib.myanimelist.ui.Details.DetailsActivity;
 import com.squareup.picasso.Picasso;
@@ -29,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class FavAnimeFragment extends Fragment implements OnSearchListener {
+public class FavAnimeFragment extends Fragment {
     private AnimeDatabaseHelper dbHelper;
     private RecyclerView mRecyclerView;
     private FavAnimeAdapter mAdapter;
@@ -94,11 +93,6 @@ public class FavAnimeFragment extends Fragment implements OnSearchListener {
         getActivity().unregisterReceiver(mDatabaseUpdatedReceiver);
     }
 
-    @Override
-    public void onSearch(String query) {
-        Cursor cursor = dbHelper.searchData(query);
-        mAdapter.updateData(cursor);
-    }
 
     private class FavAnimeAdapter extends RecyclerView.Adapter<FavAnimeAdapter.ViewHolder> {
 

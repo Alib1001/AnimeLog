@@ -1,6 +1,10 @@
 
 package com.alib.myanimelist;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -9,6 +13,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alib.myanimelist.Database.AnimeDatabaseHelper;
+import com.alib.myanimelist.SearchFragment.AnimeData;
 import com.alib.myanimelist.SearchFragment.SearchFragment;
 import com.alib.myanimelist.ui.AnimeList.AnimeListFragment;
 import com.alib.myanimelist.ui.FavAnime.FavAnimeFragment;
@@ -43,6 +49,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private Fragment animeListFragment;
     private Fragment favoriteAnimeFragment;
     private Fragment searchFragment;
+    private String searchQuery;
+
+
 
 
     @Override
@@ -55,13 +64,17 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         fragmentManager = getSupportFragmentManager();
 
+
+
         animeListFragment = new AnimeListFragment();
         favoriteAnimeFragment = new FavAnimeFragment();
         searchFragment = new SearchFragment();
 
-        fragmentManager.beginTransaction().add(R.id.container, searchFragment, "3").hide(searchFragment).commit();
-        fragmentManager.beginTransaction().add(R.id.container, favoriteAnimeFragment, "2").hide(favoriteAnimeFragment).commit();
-        fragmentManager.beginTransaction().add(R.id.container, animeListFragment, "1").commit();
+        fragmentManager.beginTransaction().add(R.id.container, searchFragment, "searchFragment").hide(searchFragment).commit();
+        fragmentManager.beginTransaction().add(R.id.container, favoriteAnimeFragment, "favoriteAnimeFragment").hide(favoriteAnimeFragment).commit();
+        fragmentManager.beginTransaction().add(R.id.container, animeListFragment, "animeListFragment").commit();
+
+
 
         activeFragment = animeListFragment;
         previousFragment = activeFragment;
@@ -70,6 +83,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         TextView titleView = findViewById(R.id.actionbar_title);
 
         SearchView searchView = findViewById(R.id.actionbar_search);
+
+        Intent intent = getIntent();
 
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -92,6 +107,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 titleView.setVisibility(View.GONE);
                 fragmentManager.beginTransaction().hide(activeFragment).show(searchFragment).commit();
                 activeFragment = searchFragment;
+
+                SearchFragment.getAnimeFromApi("Monster");
+
             }
         });
 
@@ -101,38 +119,24 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 titleView.setVisibility(View.VISIBLE);
                 fragmentManager.beginTransaction().hide(activeFragment).show(previousFragment).commit();
                 activeFragment = previousFragment;
+
+
+
                 return false;
             }
         });
-
-
-        Jikan jikan = new Jikan.JikanBuilder()
-                .httpClientCustomizer(httpClient -> httpClient.resolver(DefaultAddressResolverGroup.INSTANCE))
-                .build();
-
-
-        try {
-            Collection<Anime> results = jikan.query().anime().search()
-                    .query("sword art online")
-                    .orderBy(AnimeOrderBy.POPULARITY, SortOrder.ASCENDING)
-                    .execute()
-                    .collectList()
-                    .block();
-        } catch (JikanQueryException e) {
-            throw new RuntimeException(e);
-        }
 
     }
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
 
-
         if (itemId == R.id.navigation_anime_list) {
             fragmentManager.beginTransaction().hide(activeFragment).show(animeListFragment).commit();
             // Toast.makeText(getApplicationContext(),animeListFragment.getTag(),Toast.LENGTH_SHORT).show();
             activeFragment = animeListFragment;
             previousFragment = activeFragment;
+
 
             return true;
         } else if (itemId == R.id.navigation_favorite_anime) {
@@ -146,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
     @Override
     public boolean onQueryTextSubmit(String query) {
+
         return false;
     }
 
