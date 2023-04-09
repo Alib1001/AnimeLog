@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,39 +15,33 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alib.myanimelist.Database.AnimeDatabaseHelper;
-import com.alib.myanimelist.MainActivity;
 import com.alib.myanimelist.R;
 import com.alib.myanimelist.ui.Details.DetailsActivity;
 import com.squareup.picasso.Picasso;
 
 import net.sandrohc.jikan.Jikan;
-import net.sandrohc.jikan.cache.JikanCache;
 import net.sandrohc.jikan.exception.JikanQueryException;
 import net.sandrohc.jikan.model.anime.Anime;
 import net.sandrohc.jikan.model.anime.AnimeOrderBy;
 import net.sandrohc.jikan.model.enums.SortOrder;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import io.netty.resolver.DefaultAddressResolverGroup;
 
     public class SearchFragment extends Fragment {
 
-        private RecyclerView mRecyclerView;
         private static MyAdapter mAdapter;
 
 
 
-        private static Jikan jikan = new Jikan.JikanBuilder()
+        private final static Jikan jikan = new Jikan.JikanBuilder()
                 .httpClientCustomizer(httpClient -> httpClient.resolver(DefaultAddressResolverGroup.INSTANCE))
                 .build();
 
@@ -56,7 +49,7 @@ import io.netty.resolver.DefaultAddressResolverGroup;
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_search, container, false);
-            mRecyclerView = rootView.findViewById(R.id.recycler_view);
+            RecyclerView mRecyclerView = rootView.findViewById(R.id.recycler_view);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             mAdapter = new MyAdapter();
             mRecyclerView.setAdapter(mAdapter);
@@ -84,7 +77,9 @@ import io.netty.resolver.DefaultAddressResolverGroup;
                     dataList.add(new AnimeData(animeTitle, imageUrl,malId));
                 } while (cursor.moveToNext());
             }
-            cursor.close();
+            if (cursor != null) {
+                cursor.close();
+            }
             dbHelper.close();
             mAdapter.setData(dataList);
         }
