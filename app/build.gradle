@@ -38,7 +38,8 @@ android {
 
 
 dependencies {
-    
+    implementation 'com.github.ben-manes.caffeine:caffeine:2.9.3'
+
     implementation 'com.squareup.picasso:picasso:2.8'
     implementation 'pw.mihou:Jaikan:v2.1.0' // убрать
     implementation 'net.sandrohc:reactive-jikan:2.2.0'

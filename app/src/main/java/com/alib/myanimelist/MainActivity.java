@@ -91,11 +91,23 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             @Override
             public boolean onQueryTextSubmit(String query) {
                 titleView.setVisibility(View.GONE);
+                if (previousFragment.getTag() == "favoriteAnimeFragment"){
+                    SearchFragment.getDataFromDB(getApplicationContext(),query);
+                }
+                else if (previousFragment.getTag() == "animeListFragment"){
+                    SearchFragment.getAnimeFromApi(query);
+                }
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                if (previousFragment.getTag() == "favoriteAnimeFragment"){
+                    SearchFragment.getDataFromDB(getApplicationContext(),newText);
+                }
+                else if (previousFragment.getTag() == "animeListFragment"){
+                    SearchFragment.getAnimeFromApi(newText);
+                }
 
                 return true;
             }
@@ -107,8 +119,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 titleView.setVisibility(View.GONE);
                 fragmentManager.beginTransaction().hide(activeFragment).show(searchFragment).commit();
                 activeFragment = searchFragment;
-
-                SearchFragment.getAnimeFromApi("Monster");
 
             }
         });

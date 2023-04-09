@@ -21,17 +21,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.alib.myanimelist.Database.AnimeDatabaseHelper;
 import com.alib.myanimelist.MainActivity;
 import com.alib.myanimelist.R;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.squareup.picasso.Picasso;
 
 import net.sandrohc.jikan.Jikan;
+import net.sandrohc.jikan.cache.JikanCache;
 import net.sandrohc.jikan.exception.JikanQueryException;
 import net.sandrohc.jikan.model.anime.Anime;
 import net.sandrohc.jikan.model.anime.AnimeOrderBy;
 import net.sandrohc.jikan.model.enums.SortOrder;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import io.netty.resolver.DefaultAddressResolverGroup;
 
@@ -39,6 +43,9 @@ import io.netty.resolver.DefaultAddressResolverGroup;
 
         private RecyclerView mRecyclerView;
         private static MyAdapter mAdapter;
+
+        private static Jikan jikan = new Jikan();
+
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,6 +59,8 @@ import io.netty.resolver.DefaultAddressResolverGroup;
 
             return rootView;
         }
+
+
 
         @Override
         public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -74,15 +83,11 @@ import io.netty.resolver.DefaultAddressResolverGroup;
             mAdapter.setData(dataList);
         }
 
+
         public static void getAnimeFromApi(String animeTitle)  {
-            Jikan jikan = new Jikan.JikanBuilder()
-                    .httpClientCustomizer(httpClient -> httpClient.resolver(DefaultAddressResolverGroup.INSTANCE))
-                    .build();
-
-
             Collection<Anime> searchResult = null;
             try {
-                searchResult = jikan.query().anime().search()
+                searchResult = jikan.query().anime().search().limit(5)
                         .query(animeTitle)
                         .orderBy(AnimeOrderBy.POPULARITY, SortOrder.ASCENDING)
                         .execute()
