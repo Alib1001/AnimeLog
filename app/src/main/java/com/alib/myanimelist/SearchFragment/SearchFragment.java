@@ -2,6 +2,7 @@ package com.alib.myanimelist.SearchFragment;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Pair;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.alib.myanimelist.Database.AnimeDatabaseHelper;
 import com.alib.myanimelist.MainActivity;
 import com.alib.myanimelist.R;
-import com.github.benmanes.caffeine.cache.Caffeine;
+import com.alib.myanimelist.ui.Details.DetailsActivity;
 import com.squareup.picasso.Picasso;
 
 import net.sandrohc.jikan.Jikan;
@@ -44,8 +46,11 @@ import io.netty.resolver.DefaultAddressResolverGroup;
         private RecyclerView mRecyclerView;
         private static MyAdapter mAdapter;
 
-        private static Jikan jikan = new Jikan();
 
+
+        private static Jikan jikan = new Jikan.JikanBuilder()
+                .httpClientCustomizer(httpClient -> httpClient.resolver(DefaultAddressResolverGroup.INSTANCE))
+                .build();
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -75,7 +80,8 @@ import io.netty.resolver.DefaultAddressResolverGroup;
                 do {
                     @SuppressLint("Range") String animeTitle = cursor.getString(cursor.getColumnIndex(AnimeDatabaseHelper.COLUMN_TITLE));
                     @SuppressLint("Range") String imageUrl = cursor.getString(cursor.getColumnIndex(AnimeDatabaseHelper.COLUMN_IMAGE_URI));
-                    dataList.add(new AnimeData(animeTitle, imageUrl));
+                    @SuppressLint("Range") int malId = cursor.getInt(cursor.getColumnIndex(AnimeDatabaseHelper.COLUMN_MAL_ID));
+                    dataList.add(new AnimeData(animeTitle, imageUrl,malId));
                 } while (cursor.moveToNext());
             }
             cursor.close();
@@ -102,7 +108,8 @@ import io.netty.resolver.DefaultAddressResolverGroup;
             for (Anime anime :searchResult) {
                 String title = anime.getTitle();
                 String imageUrl = anime.images.getPreferredImageUrl();
-                dataList.add(new AnimeData(title, imageUrl));
+                int malId = anime.getMalId();
+                dataList.add(new AnimeData(title, imageUrl,malId));
             }
 
             mAdapter.setData(dataList);
@@ -134,8 +141,21 @@ import io.netty.resolver.DefaultAddressResolverGroup;
                 AnimeData item = mData.get(position);
                 String title = item.getTitle();
                 String imageUrl = item.getImageUrl();
+                int malId = item.getMalID();
+
+                Context context = holder.item.getContext();
+
                 holder.animeTextView.setText(title);
                 Picasso.get().load(imageUrl).into(holder.animeImageView);
+
+                holder.item.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, DetailsActivity.class);
+                        intent.putExtra("malId", malId);
+                        context.startActivity(intent);
+                    }
+                });
             }
 
 
@@ -147,11 +167,14 @@ import io.netty.resolver.DefaultAddressResolverGroup;
             static class ViewHolder extends RecyclerView.ViewHolder {
                 TextView animeTextView;
                 ImageView animeImageView;
+                LinearLayout item;
 
                 ViewHolder(View itemView) {
                     super(itemView);
                     animeTextView = itemView.findViewById(R.id.title_text_view);
                     animeImageView = itemView.findViewById(R.id.image_view);
+                    item = itemView.findViewById(R.id.item_anime_linear);
+
                 }
             }
         }
