@@ -1,9 +1,14 @@
 package com.alib.myanimelist.ui.Details;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -66,6 +71,17 @@ public class DetailsActivity extends AppCompatActivity {
         } catch (JikanQueryException e) {
             throw new RuntimeException(e);
         }
+
+        titleTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager) getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("", titleTextView.getText().toString());
+                clipboard.setPrimaryClip(clip);
+
+                Toast.makeText(getApplicationContext(),"Copied", Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 }

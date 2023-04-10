@@ -74,7 +74,8 @@ import io.netty.resolver.DefaultAddressResolverGroup;
                     @SuppressLint("Range") String animeTitle = cursor.getString(cursor.getColumnIndex(AnimeDatabaseHelper.COLUMN_TITLE));
                     @SuppressLint("Range") String imageUrl = cursor.getString(cursor.getColumnIndex(AnimeDatabaseHelper.COLUMN_IMAGE_URI));
                     @SuppressLint("Range") int malId = cursor.getInt(cursor.getColumnIndex(AnimeDatabaseHelper.COLUMN_MAL_ID));
-                    dataList.add(new AnimeData(animeTitle, imageUrl,malId));
+                    @SuppressLint("Range") int episodes = cursor.getInt(cursor.getColumnIndex(AnimeDatabaseHelper.COLUMN_EPISODES));
+                    dataList.add(new AnimeData(animeTitle, imageUrl,malId,episodes));
                 } while (cursor.moveToNext());
             }
             if (cursor != null) {
@@ -88,7 +89,7 @@ import io.netty.resolver.DefaultAddressResolverGroup;
         public static void getAnimeFromApi(String animeTitle)  {
             Collection<Anime> searchResult = null;
             try {
-                searchResult = jikan.query().anime().search().limit(5)
+                searchResult = jikan.query().anime().search()
                         .query(animeTitle)
                         .orderBy(AnimeOrderBy.POPULARITY, SortOrder.ASCENDING)
                         .execute()
@@ -104,15 +105,12 @@ import io.netty.resolver.DefaultAddressResolverGroup;
                 String title = anime.getTitle();
                 String imageUrl = anime.images.getPreferredImageUrl();
                 int malId = anime.getMalId();
-                dataList.add(new AnimeData(title, imageUrl,malId));
+                int eps = anime.episodes;
+                dataList.add(new AnimeData(title, imageUrl,malId,eps));
             }
 
             mAdapter.setData(dataList);
         }
-
-
-
-
 
         private static class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             private List<AnimeData> mData = new ArrayList<>();
@@ -137,11 +135,14 @@ import io.netty.resolver.DefaultAddressResolverGroup;
                 String title = item.getTitle();
                 String imageUrl = item.getImageUrl();
                 int malId = item.getMalID();
+                int episodes = item.getEps();
 
                 Context context = holder.item.getContext();
 
                 holder.animeTextView.setText(title);
                 Picasso.get().load(imageUrl).into(holder.animeImageView);
+
+                holder.epsNumTextView.setText("EP:" + episodes);
 
                 holder.item.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -161,6 +162,7 @@ import io.netty.resolver.DefaultAddressResolverGroup;
 
             static class ViewHolder extends RecyclerView.ViewHolder {
                 TextView animeTextView;
+                TextView epsNumTextView;
                 ImageView animeImageView;
                 LinearLayout item;
 
@@ -169,6 +171,7 @@ import io.netty.resolver.DefaultAddressResolverGroup;
                     animeTextView = itemView.findViewById(R.id.title_text_view);
                     animeImageView = itemView.findViewById(R.id.image_view);
                     item = itemView.findViewById(R.id.item_anime_linear);
+                    epsNumTextView = itemView.findViewById(R.id.eps_text_view);
 
                 }
             }

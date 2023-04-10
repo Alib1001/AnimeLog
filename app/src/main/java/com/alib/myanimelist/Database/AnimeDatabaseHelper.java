@@ -16,13 +16,15 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_IMAGE_URI = "imageuri";
     private static final String COLUMN__URL = "url";
     public static final String COLUMN_MAL_ID = "malID";
+    public static final String COLUMN_EPISODES = "episodes";
     private final Context context;
 
     private static final String CREATE_TABLE_ANIME = "CREATE TABLE " + TABLE_ANIME + "("
             + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + COLUMN_TITLE + " TEXT,"
             + COLUMN_IMAGE_URI + " TEXT,"
-            + COLUMN_MAL_ID + " INTEGER"
+            + COLUMN_MAL_ID + " INTEGER,"
+            + COLUMN_EPISODES + " INTEGER"
             + ")";
 
 
@@ -49,10 +51,12 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
         String title = anime.getTitle();
         String imageUri = anime.images.getPreferredImageUrl();
         int malId = anime.getMalId();
+        int episodes = anime.getEpisodes();
 
         cv.put(COLUMN_TITLE, title);
         cv.put(COLUMN_IMAGE_URI,imageUri);
         cv.put(COLUMN_MAL_ID,malId);
+        cv.put(COLUMN_EPISODES,episodes);
         long result = db.insert(TABLE_ANIME,null, cv);
 
         if(result == -1){
@@ -70,6 +74,7 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
         String title = anime.getTitle();
         String imageUri = anime.images.getPreferredImageUrl();
         int malId = anime.getMalId();
+        int episodes = anime.getEpisodes();
 
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_ANIME + " WHERE " + COLUMN_MAL_ID + " = ?", new String[] { String.valueOf(malId) });
 
@@ -77,6 +82,7 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
             cv.put(COLUMN_TITLE, title);
             cv.put(COLUMN_IMAGE_URI,imageUri);
             cv.put(COLUMN_MAL_ID,malId);
+            cv.put(COLUMN_EPISODES, episodes);
             long result = db.insert(TABLE_ANIME,null, cv);
 
             if(result == -1){
@@ -99,6 +105,7 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
             ContentValues cv = new ContentValues();
             cv.put(COLUMN_TITLE, anime.getTitle());
             cv.put(COLUMN_IMAGE_URI, anime.images.getPreferredImageUrl());
+            cv.put(COLUMN_EPISODES, anime.getEpisodes());
 
             int rowsAffected = db.update(TABLE_ANIME, cv, COLUMN_MAL_ID + " = ?", new String[]{String.valueOf(anime.getMalId())});
             if (rowsAffected > 0) {

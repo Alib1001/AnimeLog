@@ -5,11 +5,14 @@ public class AnimeData {
     private String imageUrl;
     private int malID;
 
+    private int eps;
 
-    public AnimeData(String title, String imageUrl, int malID) {
+
+    public AnimeData(String title, String imageUrl, int malID, int eps) {
         this.title = title;
         this.imageUrl = imageUrl;
         this.malID = malID;
+        this.eps = eps;
     }
 
     public String getTitle() {
@@ -26,5 +29,13 @@ public class AnimeData {
 
     public void setMalID(int malID) {
         this.malID = malID;
+    }
+
+    public int getEps() {
+        return eps;
+    }
+
+    public void setEps(int eps) {
+        this.eps = eps;
     }
 }

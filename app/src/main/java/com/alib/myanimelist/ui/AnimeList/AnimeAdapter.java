@@ -67,7 +67,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
         holder.titleTextView.setText(anime.getTitle());
         Picasso.get().load(imageUrl).into(holder.bannerImageView);
         holder.genreTextView.setText(String.valueOf("EP: " + anime.getEpisodes()));
-        holder.ratingTextView.setText(String.valueOf(anime.getRating()));
+        holder.ratingTextView.setText(String.valueOf(anime.getScore()));
 
 
         holder.item_anime_linear.setOnClickListener(v -> {
