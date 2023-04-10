@@ -105,7 +105,15 @@ import io.netty.resolver.DefaultAddressResolverGroup;
                 String title = anime.getTitle();
                 String imageUrl = anime.images.getPreferredImageUrl();
                 int malId = anime.getMalId();
-                int eps = anime.episodes;
+
+                int eps;
+
+                if (anime.getEpisodes() != null){
+                    eps = anime.getEpisodes();
+                }
+                else{
+                    eps = 0;
+                }
                 dataList.add(new AnimeData(title, imageUrl,malId,eps));
             }
 

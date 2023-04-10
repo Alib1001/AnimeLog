@@ -77,6 +77,8 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
         });
         holder.addToFavBtn.setOnClickListener(v -> {
 
+
+
            Anime anime1 = animeList.get(holder.getAdapterPosition());
            dbHelper.updateAnime(anime1);
            dbHelper.close();
@@ -90,6 +92,8 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
 
             Intent databaseUpdatedIntent = new Intent(FavAnimeFragment.ACTION_DATABASE_UPDATED);
             mContext.sendBroadcast(databaseUpdatedIntent);
+
+
 
 
         });

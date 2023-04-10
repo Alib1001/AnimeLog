@@ -5,10 +5,10 @@ public class AnimeData {
     private String imageUrl;
     private int malID;
 
-    private int eps;
+    private Integer eps;
 
 
-    public AnimeData(String title, String imageUrl, int malID, int eps) {
+    public AnimeData(String title, String imageUrl, int malID, Integer eps) {
         this.title = title;
         this.imageUrl = imageUrl;
         this.malID = malID;
