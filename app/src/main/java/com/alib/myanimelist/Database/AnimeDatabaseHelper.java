@@ -1,15 +1,29 @@
 package com.alib.myanimelist.Database;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
+import android.util.Log;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
 
 public class AnimeDatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "anime.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
     public static final String TABLE_ANIME = "anime";
     private static final String COLUMN_ID = "_id";
     public static final String COLUMN_TITLE = "title";
@@ -173,6 +187,89 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
+    public void exportDataToTxt() {
+        Cursor cursor = readAllData();
+
+        if (cursor != null) {
+            StringBuilder data = new StringBuilder();
+            while (cursor.moveToNext()) {
+                @SuppressLint("Range") int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
+                @SuppressLint("Range") String title = cursor.getString(cursor.getColumnIndex(COLUMN_TITLE));
+                @SuppressLint("Range") String imageUri = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_URI));
+                @SuppressLint("Range") int malId = cursor.getInt(cursor.getColumnIndex(COLUMN_MAL_ID));
+                @SuppressLint("Range") int episodes = cursor.getInt(cursor.getColumnIndex(COLUMN_EPISODES));
+
+                data.append("ID: ").append(id).append("\n")
+                        .append("Title: ").append(title).append("\n")
+                        .append("Image URI: ").append(imageUri).append("\n")
+                        .append("MAL ID: ").append(malId).append("\n")
+                        .append("Episodes: ").append(episodes).append("\n\n");
+            }
+
+            cursor.close();
+
+            try {
+                File dir = new File(context.getExternalFilesDir(null), "my_anime_data.txt");
+                String filePath = dir.getAbsolutePath()+ "/my_anime_data.txt";
+
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+
+                FileWriter writer = new FileWriter(filePath);
+                writer.append(data.toString());
+                writer.flush();
+                writer.close();
+
+                Toast.makeText(context, "Data exported to " + filePath, Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(context, "Failed to export data", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @SuppressLint("Range")
+    public void exportDataToJSON(Context context) {
+        JSONArray jsonArray = new JSONArray();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT * FROM " + TABLE_ANIME;
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put(COLUMN_TITLE, cursor.getString(cursor.getColumnIndex(COLUMN_TITLE)));
+                    jsonObject.put(COLUMN_IMAGE_URI, cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_URI)));
+                    jsonObject.put(COLUMN_MAL_ID, cursor.getInt(cursor.getColumnIndex(COLUMN_MAL_ID)));
+                    jsonObject.put(COLUMN_EPISODES, cursor.getInt(cursor.getColumnIndex(COLUMN_EPISODES)));
+                    jsonArray.put(jsonObject);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+
+        try {
+            File dir = new File(context.getExternalFilesDir(null), "anime_data_json");
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            String filePath = dir.getAbsolutePath()+ "/anime_data.json";
+            FileWriter fileWriter = new FileWriter(filePath);
+            fileWriter.write(jsonArray.toString());
+            fileWriter.flush();
+            fileWriter.close();
+            Toast.makeText(context,"Data exported to Json File", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 }

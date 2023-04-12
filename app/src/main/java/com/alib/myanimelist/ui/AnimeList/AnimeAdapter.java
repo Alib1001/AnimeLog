@@ -25,6 +25,7 @@ import com.squareup.picasso.Picasso;
 
 import net.sandrohc.jikan.model.anime.Anime;
 
+import java.io.IOException;
 import java.util.List;
 public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHolder> {
 
@@ -81,7 +82,9 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
 
            Anime anime1 = animeList.get(holder.getAdapterPosition());
            dbHelper.updateAnime(anime1);
-           dbHelper.close();
+
+            dbHelper.exportDataToJSON(mContext);
+            dbHelper.close();
 
             if (dbHelper.checkIfFav(anime1.getMalId())) {
                 holder.addToFavBtn.setBackground(fav_filled);
