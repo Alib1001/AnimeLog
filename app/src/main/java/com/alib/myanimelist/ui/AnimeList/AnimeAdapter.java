@@ -83,8 +83,9 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
            Anime anime1 = animeList.get(holder.getAdapterPosition());
            dbHelper.updateAnime(anime1);
 
-            dbHelper.exportDataToJSON(mContext);
-            dbHelper.close();
+           dbHelper.exportDataToTxt();
+           dbHelper.exportDataToJSON();
+           dbHelper.close();
 
             if (dbHelper.checkIfFav(anime1.getMalId())) {
                 holder.addToFavBtn.setBackground(fav_filled);
@@ -92,12 +93,8 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
             else {
                 holder.addToFavBtn.setBackground(fav_unfilled);
             }
-
             Intent databaseUpdatedIntent = new Intent(FavAnimeFragment.ACTION_DATABASE_UPDATED);
             mContext.sendBroadcast(databaseUpdatedIntent);
-
-
-
 
         });
     }

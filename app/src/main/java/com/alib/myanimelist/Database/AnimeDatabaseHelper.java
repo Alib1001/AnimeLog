@@ -220,8 +220,6 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
                 writer.append(data.toString());
                 writer.flush();
                 writer.close();
-
-                Toast.makeText(context, "Data exported to " + filePath, Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
                 e.printStackTrace();
                 Toast.makeText(context, "Failed to export data", Toast.LENGTH_SHORT).show();
@@ -230,7 +228,7 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
-    public void exportDataToJSON(Context context) {
+    public void exportDataToJSON() {
         JSONArray jsonArray = new JSONArray();
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -265,11 +263,64 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
             fileWriter.write(jsonArray.toString());
             fileWriter.flush();
             fileWriter.close();
-            Toast.makeText(context,"Data exported to Json File", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    public void importDataFromJson() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            File dir = new File(context.getExternalFilesDir(null), "anime_data_json");
+            if (!dir.exists()) {
+                dir.mkdirs();
+                Toast.makeText(context, "Directory does not exists !",Toast.LENGTH_SHORT).show();
+            }
+            String filePath = dir.getAbsolutePath()+ "/anime_data.json";
+            File file = new File(filePath);
+            if (!file.exists()) {
+                Toast.makeText(context, "Json File does not exists !",Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            br.close();
+            String jsonData = sb.toString();
+
+            JSONArray jsonArray = new JSONArray(jsonData);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                String title = jsonObject.getString("title");
+                String imageUri = jsonObject.getString("imageuri");
+                int malId = jsonObject.getInt("malID");
+                int episodes = jsonObject.getInt("episodes");
+
+                ContentValues cv = new ContentValues();
+                cv.put(COLUMN_TITLE, title);
+                cv.put(COLUMN_IMAGE_URI, imageUri);
+                cv.put(COLUMN_MAL_ID, malId);
+                cv.put(COLUMN_EPISODES, episodes);
+                long result = db.insert(TABLE_ANIME, null, cv);
+
+                if (result == -1) {
+                    Log.e("AnimeDatabaseHelper", "Error inserting data from JSON");
+                } else {
+                    Log.i("AnimeDatabaseHelper", "Data inserted from JSON: " + title);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
 }
