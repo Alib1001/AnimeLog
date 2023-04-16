@@ -124,9 +124,11 @@ public class FavAnimeFragment extends Fragment {
             holder.mImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    DetailsActivity.showConfigBtn = true;
                     Intent intent = new Intent(getContext(), DetailsActivity.class);
                     intent.putExtra("malId", malId);
                     getContext().startActivity(intent);
+
                 }
             });
         }

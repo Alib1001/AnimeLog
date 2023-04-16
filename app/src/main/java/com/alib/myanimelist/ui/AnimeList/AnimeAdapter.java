@@ -12,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -55,6 +56,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
         net.sandrohc.jikan.model.anime.Anime anime = animeList.get(position);
         Drawable fav_filled = ContextCompat.getDrawable(mContext, R.drawable.ic_favorite_filled);
         Drawable fav_unfilled = ContextCompat.getDrawable(mContext, R.drawable.ic_fav_unfilled);
+        Drawable fav_settings = ContextCompat.getDrawable(mContext,R.drawable.ic_settings);
 
         if (dbHelper.checkIfFav(anime.getMalId())) {
             holder.addToFavBtn.setBackground(fav_filled);
@@ -75,10 +77,10 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
             Intent intent = new Intent(mContext, DetailsActivity.class);
             intent.putExtra("malId",anime.getMalId());
             mContext.startActivity(intent);
+
+            DetailsActivity.showConfigBtn = false;
         });
         holder.addToFavBtn.setOnClickListener(v -> {
-
-
 
            Anime anime1 = animeList.get(holder.getAdapterPosition());
            dbHelper.updateAnime(anime1);

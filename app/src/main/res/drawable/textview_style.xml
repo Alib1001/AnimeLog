@@ -1,0 +1,8 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#00000000" /> <!-- Set the fill color to transparent -->
+    <corners android:radius="20dp" />
+    <!-- Set the radius to 50dp to make it an oval shape -->
+    <stroke
+        android:color="#000000"
+        android:width="2dp" /> <!-- Set the stroke width to 2dp -->
+</shape>

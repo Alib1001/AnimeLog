@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+  <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center"
+      android:textSize="28sp"
+      android:layout_marginTop="20dp"
+      android:text="Steins Gate"
+      android:textColor="@android:color/white">
+
+  </TextView>
+
+  <Spinner
+      android:id="@+id/statusSpinner"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:textSize="22sp"
+      android:padding="16dp"
+      android:textColor="@android:color/white"
+      android:layout_marginTop="16dp"
+      android:layout_marginBottom="8dp"/>
+
+  <Spinner
+      android:id="@+id/scoreSpinner"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:textSize="22sp"
+      android:padding="16dp"
+      android:textColor="@android:color/white"
+      android:layout_marginTop="8dp"
+      android:layout_marginBottom="8dp"/>
+
+  <EditText
+      android:id="@+id/seriesEd"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:hint="Enter Number of Watched Series"
+      android:textSize="18sp"
+      android:inputType="number"
+      android:padding="16dp"
+      android:layout_marginTop="8dp"
+      android:layout_marginBottom="16dp"/>
+
+  <EditText
+      android:id="@+id/notesEd"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:hint="Enter your notes"
+      android:textSize="18sp"
+      android:padding="16dp"
+      android:layout_marginTop="8dp"
+
+      android:layout_marginBottom="16dp"/>
+
+  <Button
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text = "Save"
+      android:textSize="22sp"
+      android:layout_gravity="center"
+    android:layout_marginTop="15dp"/>
+
+</LinearLayout>

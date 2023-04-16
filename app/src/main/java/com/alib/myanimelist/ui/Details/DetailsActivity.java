@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.alib.myanimelist.ui.ConfigActivity.ConfigActivity;
 import com.alib.myanimelist.Database.AnimeDatabaseHelper;
 import com.alib.myanimelist.R;
 import com.alib.myanimelist.ui.FavAnime.FavAnimeFragment;
@@ -28,6 +29,8 @@ public class DetailsActivity extends AppCompatActivity {
     private AnimeDatabaseHelper dbHelper;
     private int malId;
 
+    public static boolean showConfigBtn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,12 +40,16 @@ public class DetailsActivity extends AppCompatActivity {
         TextView descriptionTextView = findViewById(R.id.animeDescription);
         ImageView bannerImageView = findViewById(R.id.detail_anime_image);
         FloatingActionButton addToFavBtn = findViewById(R.id.addToFav);
+        FloatingActionButton settingsBtn = findViewById(R.id.anime_settings);
 
         dbHelper = new AnimeDatabaseHelper(getApplicationContext());
 
         Intent intent = getIntent();
         malId = intent.getIntExtra("malId",1);
 
+        if (!showConfigBtn){
+            settingsBtn.setVisibility(View.GONE);
+        }
 
         Jikan jikan = new Jikan.JikanBuilder()
                 .httpClientCustomizer(httpClient -> httpClient.resolver(DefaultAddressResolverGroup.INSTANCE))
@@ -67,6 +74,14 @@ public class DetailsActivity extends AppCompatActivity {
 
                 Intent databaseUpdatedIntent = new Intent(FavAnimeFragment.ACTION_DATABASE_UPDATED);
                 getApplicationContext().sendBroadcast(databaseUpdatedIntent);
+            });
+
+            settingsBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(DetailsActivity.this, ConfigActivity.class);
+                    startActivity(intent);
+                }
             });
         } catch (JikanQueryException e) {
             throw new RuntimeException(e);

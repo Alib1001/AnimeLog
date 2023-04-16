@@ -321,6 +321,17 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public int  animeCount(){
+        Cursor cursor = readAllData();
+        int count = 0;
 
+        if (cursor !=null){
+            while (cursor.moveToNext()){
+                count++;
+            }
+        }
+
+        return count;
+    }
 
 }
