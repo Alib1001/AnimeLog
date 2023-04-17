@@ -23,7 +23,7 @@ import java.util.Scanner;
 
 public class AnimeDatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "anime.db";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
     public static final String TABLE_ANIME = "anime";
     private static final String COLUMN_ID = "_id";
     public static final String COLUMN_TITLE = "title";
@@ -31,6 +31,12 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN__URL = "url";
     public static final String COLUMN_MAL_ID = "malID";
     public static final String COLUMN_EPISODES = "episodes";
+    public static final String COLUMN_WATCHED_EPISODES = "watchEpisodes";
+    public static final String COLUMN_SCORE = "score";
+    public static final String COLUMN_STATUS = "status";
+    public static final String COLUMN_NOTES = "notes";
+
+
     private final Context context;
 
     private static final String CREATE_TABLE_ANIME = "CREATE TABLE " + TABLE_ANIME + "("
@@ -38,7 +44,11 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_TITLE + " TEXT,"
             + COLUMN_IMAGE_URI + " TEXT,"
             + COLUMN_MAL_ID + " INTEGER,"
-            + COLUMN_EPISODES + " INTEGER"
+            + COLUMN_EPISODES + " INTEGER,"
+            + COLUMN_WATCHED_EPISODES + " INTEGER,"
+            + COLUMN_SCORE + " INTEGER,"
+            + COLUMN_STATUS + " TEXT,"
+            + COLUMN_NOTES + " TEXT"
             + ")";
 
 
@@ -97,6 +107,8 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
             cv.put(COLUMN_IMAGE_URI,imageUri);
             cv.put(COLUMN_MAL_ID,malId);
             cv.put(COLUMN_EPISODES, episodes);
+
+
             long result = db.insert(TABLE_ANIME,null, cv);
 
             if(result == -1){
@@ -120,7 +132,10 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
             cv.put(COLUMN_TITLE, anime.getTitle());
             cv.put(COLUMN_IMAGE_URI, anime.images.getPreferredImageUrl());
             cv.put(COLUMN_EPISODES, anime.getEpisodes());
-
+            cv.put(COLUMN_WATCHED_EPISODES, 0);
+            cv.put(COLUMN_STATUS, "UNKNOWN");
+            cv.put(COLUMN_SCORE, 0);
+            cv.put(COLUMN_NOTES, "null");
             int rowsAffected = db.update(TABLE_ANIME, cv, COLUMN_MAL_ID + " = ?", new String[]{String.valueOf(anime.getMalId())});
             if (rowsAffected > 0) {
                 Toast.makeText(context, "Updated Successfully!", Toast.LENGTH_SHORT).show();
@@ -151,6 +166,27 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
             cursor = db.rawQuery(query, null);
         }
         return cursor;
+    }
+
+    public void addInfoToAnime(net.sandrohc.jikan.model.anime.Anime anime){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_ANIME + " WHERE " + COLUMN_MAL_ID + " = ?", new String[]{String.valueOf(anime.getMalId())});
+        if (cursor.moveToFirst()) {
+            ContentValues cv = new ContentValues();
+            cv.put(COLUMN_TITLE, anime.getTitle());
+            cv.put(COLUMN_IMAGE_URI, anime.images.getPreferredImageUrl());
+            cv.put(COLUMN_EPISODES, anime.getEpisodes());
+
+
+            int rowsAffected = db.update(TABLE_ANIME, cv, COLUMN_MAL_ID + " = ?", new String[]{String.valueOf(anime.getMalId())});
+            if (rowsAffected > 0) {
+                Toast.makeText(context, "Updated Successfully!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, "Failed to update anime", Toast.LENGTH_SHORT).show();
+            }
+        }
+        cursor.close();
     }
 
     public void deleteAllData(){
@@ -198,12 +234,21 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
                 @SuppressLint("Range") String imageUri = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_URI));
                 @SuppressLint("Range") int malId = cursor.getInt(cursor.getColumnIndex(COLUMN_MAL_ID));
                 @SuppressLint("Range") int episodes = cursor.getInt(cursor.getColumnIndex(COLUMN_EPISODES));
+                @SuppressLint("Range") int watchedEps = cursor.getInt(cursor.getColumnIndex(COLUMN_WATCHED_EPISODES));
+                @SuppressLint("Range") int score = cursor.getInt(cursor.getColumnIndex(COLUMN_SCORE));
+                @SuppressLint("Range") String status = cursor.getString(cursor.getColumnIndex(COLUMN_STATUS));
+                @SuppressLint("Range") String notes = cursor.getString(cursor.getColumnIndex(COLUMN_NOTES));
 
                 data.append("ID: ").append(id).append("\n")
                         .append("Title: ").append(title).append("\n")
                         .append("Image URI: ").append(imageUri).append("\n")
                         .append("MAL ID: ").append(malId).append("\n")
-                        .append("Episodes: ").append(episodes).append("\n\n");
+                        .append("Episodes: ").append(episodes).append("\n")
+                        .append("Watched Episodes:").append(watchedEps).append("\n")
+                        .append("Your score: ").append(score).append("\n")
+                        .append("Status: ").append(status).append("\n")
+                        .append("Notes: ").append(notes).append("\n\n")
+                ;
             }
 
             cursor.close();

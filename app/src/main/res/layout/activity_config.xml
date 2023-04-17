@@ -6,6 +6,7 @@
 
 
   <TextView
+      android:id="@+id/anime_name"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:gravity="center"
@@ -55,15 +56,15 @@
       android:textSize="18sp"
       android:padding="16dp"
       android:layout_marginTop="8dp"
-
       android:layout_marginBottom="16dp"/>
 
   <Button
+      android:id="@+id/saveBtn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text = "Save"
       android:textSize="22sp"
       android:layout_gravity="center"
-    android:layout_marginTop="15dp"/>
+      android:layout_marginTop="15dp"/>
 
 </LinearLayout>

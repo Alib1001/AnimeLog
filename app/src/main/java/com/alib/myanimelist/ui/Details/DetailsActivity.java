@@ -47,6 +47,8 @@ public class DetailsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         malId = intent.getIntExtra("malId",1);
 
+
+
         if (!showConfigBtn){
             settingsBtn.setVisibility(View.GONE);
         }
@@ -80,6 +82,7 @@ public class DetailsActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(DetailsActivity.this, ConfigActivity.class);
+                    intent.putExtra("malId", malId);
                     startActivity(intent);
                 }
             });
