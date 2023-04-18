@@ -17,6 +17,7 @@ import com.alib.myanimelist.Database.AnimeDatabaseHelper;
 import com.alib.myanimelist.SearchFragment.AnimeData;
 import com.alib.myanimelist.SearchFragment.SearchFragment;
 import com.alib.myanimelist.ui.AnimeList.AnimeListFragment;
+import com.alib.myanimelist.ui.Backup.BackupFragment;
 import com.alib.myanimelist.ui.FavAnime.FavAnimeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -49,8 +50,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private Fragment animeListFragment;
     private Fragment favoriteAnimeFragment;
     private Fragment searchFragment;
-    private String searchQuery;
+    private Fragment backupFragment;
 
+    private SearchView searchView;
 
 
 
@@ -64,15 +66,15 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         fragmentManager = getSupportFragmentManager();
 
-
-
         animeListFragment = new AnimeListFragment();
         favoriteAnimeFragment = new FavAnimeFragment();
         searchFragment = new SearchFragment();
+        backupFragment = new BackupFragment();
 
         fragmentManager.beginTransaction().add(R.id.container, searchFragment, "searchFragment").hide(searchFragment).commit();
         fragmentManager.beginTransaction().add(R.id.container, favoriteAnimeFragment, "favoriteAnimeFragment").hide(favoriteAnimeFragment).commit();
         fragmentManager.beginTransaction().add(R.id.container, animeListFragment, "animeListFragment").commit();
+        fragmentManager.beginTransaction().add(R.id.container, backupFragment, "backupFragment").hide(backupFragment).commit();
 
 
 
@@ -82,9 +84,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         TextView titleView = findViewById(R.id.actionbar_title);
 
-        SearchView searchView = findViewById(R.id.actionbar_search);
+        searchView = findViewById(R.id.actionbar_search);
 
-        Intent intent = getIntent();
+
+
 
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -142,19 +145,28 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         int itemId = item.getItemId();
 
         if (itemId == R.id.navigation_anime_list) {
-            fragmentManager.beginTransaction().hide(activeFragment).show(animeListFragment).commit();
-            // Toast.makeText(getApplicationContext(),animeListFragment.getTag(),Toast.LENGTH_SHORT).show();
-            activeFragment = animeListFragment;
+            fragmentManager.beginTransaction().hide(activeFragment).show(animeListFragment).commit();activeFragment = animeListFragment;
             previousFragment = activeFragment;
-
+            searchView.setVisibility(View.VISIBLE);
 
             return true;
         } else if (itemId == R.id.navigation_favorite_anime) {
             fragmentManager.beginTransaction().hide(activeFragment).show(favoriteAnimeFragment).commit();
             activeFragment = favoriteAnimeFragment;
             previousFragment = activeFragment;
+            searchView.setVisibility(View.VISIBLE);
             return true;
         }
+
+        else if (itemId == R.id.navigation_backup) {
+            fragmentManager.beginTransaction().hide(activeFragment).show(backupFragment).commit();
+            activeFragment = backupFragment;
+            previousFragment = activeFragment;
+            searchView.setVisibility(View.GONE);
+
+            return true;
+        }
+
 
         return false;
     }

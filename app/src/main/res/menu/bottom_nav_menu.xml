@@ -9,7 +9,12 @@
     <item
         android:id="@+id/navigation_favorite_anime"
         android:icon="@drawable/ic_favorite_filled"
-        android:title="@string/title_dashboard" />
+        android:title="@string/title_favorite" />
+
+    <item
+        android:id="@+id/navigation_backup"
+        android:icon="@drawable/ic_backup"
+        android:title="@string/title_backup" />
 
 
 </menu>
