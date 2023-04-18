@@ -28,15 +28,16 @@ import io.netty.resolver.DefaultAddressResolverGroup;
 
 public class ConfigActivity extends AppCompatActivity {
 
-
     Jikan jikan = new Jikan.JikanBuilder()
             .httpClientCustomizer(httpClient -> httpClient.resolver(DefaultAddressResolverGroup.INSTANCE))
             .build();
-    
-    
 
     Anime anime;
 
+    String selectedStatus;
+    int score;
+    int watchedEps;
+    String notes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,43 +51,35 @@ public class ConfigActivity extends AppCompatActivity {
         EditText notesEd = findViewById(R.id.notesEd);
         Button saveBtn = findViewById(R.id.saveBtn);
 
-         Context context = getApplicationContext();
-         AnimeDatabaseHelper dbHelper = new AnimeDatabaseHelper(context);
-
-
+        Context context = getApplicationContext();
+        AnimeDatabaseHelper dbHelper = new AnimeDatabaseHelper(context);
 
         Intent intent = getIntent();
-        int malId = intent.getIntExtra("malId",1);
+        int malId = intent.getIntExtra("malId", 1);
 
-        {
-            try {
-                anime = jikan.query().anime().get(malId)
-                        .execute()
-                        .block();
-            } catch (JikanQueryException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            anime = jikan.query().anime().get(malId)
+                    .execute()
+                    .block();
+        } catch (JikanQueryException e) {
+            throw new RuntimeException(e);
         }
 
         animeName.setText(anime.getTitle());
 
-
-        String[] statusOptions = {"Watching", "Completed", "On-Hold","Dropped","Plan to watch"};
+        String[] statusOptions = {"Watching", "Completed", "On-Hold", "Dropped", "Plan to watch"};
         ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(this, R.layout.item_spinner, statusOptions);
         statusSpinner.setAdapter(statusAdapter);
 
-
-
         String[] scoreOptions = {"(1)Appalling", "(2)Horrible", "(3)Very Bad", "(4)Bad",
-                "(5)Average", "(6)Fine","(7)Good","(8)Very Good","(9)Great","(10)Masterpiece"};
+                "(5)Average", "(6)Fine", "(7)Good", "(8)Very Good", "(9)Great", "(10)Masterpiece"};
         ArrayAdapter<String> scoreAdapter = new ArrayAdapter<>(this, R.layout.item_spinner, scoreOptions);
         scoreSpinner.setAdapter(scoreAdapter);
-
 
         statusSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedStatus = parent.getItemAtPosition(position).toString();
+                selectedStatus = parent.getItemAtPosition(position).toString();
             }
 
             @Override
@@ -94,13 +87,12 @@ public class ConfigActivity extends AppCompatActivity {
             }
         });
 
-
         scoreSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedScore = parent.getItemAtPosition(position).toString();
                 String numericString = selectedScore.replaceAll("[^\\d]", "");
-                int score = Integer.parseInt(numericString);
+                score = Integer.parseInt(numericString);
             }
 
             @Override
@@ -112,7 +104,9 @@ public class ConfigActivity extends AppCompatActivity {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dbHelper.updateData(anime);
+                watchedEps = Integer.parseInt(watchedSeriesEd.getText().toString());
+                notes = notesEd.getText().toString();
+                dbHelper.updateAnimeConfig(anime,watchedEps,score,selectedStatus,notes);
                 dbHelper.exportDataToTxt();
             }
         });

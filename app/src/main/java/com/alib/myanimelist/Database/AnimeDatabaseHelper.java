@@ -379,4 +379,28 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
+    public void updateAnimeConfig(net.sandrohc.jikan.model.anime.Anime anime,int watchedEps,
+                                  int score,String status,String notes) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_ANIME + " WHERE " + COLUMN_MAL_ID + " = ?", new String[]{String.valueOf(anime.getMalId())});
+        if (cursor.moveToFirst()) {
+            ContentValues cv = new ContentValues();
+            cv.put(COLUMN_TITLE, anime.getTitle());
+            cv.put(COLUMN_IMAGE_URI, anime.images.getPreferredImageUrl());
+            cv.put(COLUMN_EPISODES, anime.getEpisodes());
+            cv.put(COLUMN_WATCHED_EPISODES, watchedEps);
+            cv.put(COLUMN_STATUS, status);
+            cv.put(COLUMN_SCORE, score);
+            cv.put(COLUMN_NOTES, notes);
+            int rowsAffected = db.update(TABLE_ANIME, cv, COLUMN_MAL_ID + " = ?", new String[]{String.valueOf(anime.getMalId())});
+            if (rowsAffected > 0) {
+                Toast.makeText(context, "Updated Successfully!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, "Failed to update anime", Toast.LENGTH_SHORT).show();
+            }
+        }
+        cursor.close();
+    }
+
 }
