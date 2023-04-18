@@ -72,6 +72,8 @@ public class DetailsActivity extends AppCompatActivity {
 
             addToFavBtn.setOnClickListener(v -> {
                 dbHelper.updateAnime(anime);
+                dbHelper.exportDataToTxt();
+                dbHelper.exportDataToJSON();
                 dbHelper.close();
 
                 Intent databaseUpdatedIntent = new Intent(FavAnimeFragment.ACTION_DATABASE_UPDATED);
