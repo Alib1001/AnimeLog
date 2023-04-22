@@ -289,6 +289,10 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
                     jsonObject.put(COLUMN_IMAGE_URI, cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_URI)));
                     jsonObject.put(COLUMN_MAL_ID, cursor.getInt(cursor.getColumnIndex(COLUMN_MAL_ID)));
                     jsonObject.put(COLUMN_EPISODES, cursor.getInt(cursor.getColumnIndex(COLUMN_EPISODES)));
+                    jsonObject.put(COLUMN_WATCHED_EPISODES, cursor.getInt(cursor.getColumnIndex(COLUMN_WATCHED_EPISODES)));
+                    jsonObject.put(COLUMN_STATUS, cursor.getInt(cursor.getColumnIndex(COLUMN_WATCHED_EPISODES)));
+                    jsonObject.put(COLUMN_SCORE, cursor.getInt(cursor.getColumnIndex(COLUMN_SCORE)));
+                    jsonObject.put(COLUMN_NOTES, cursor.getString(cursor.getColumnIndex(COLUMN_NOTES)));
                     jsonArray.put(jsonObject);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -345,12 +349,19 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
                 String imageUri = jsonObject.getString("imageuri");
                 int malId = jsonObject.getInt("malID");
                 int episodes = jsonObject.getInt("episodes");
-
+                int watchedEpisodes = jsonObject.getInt("watchEpisodes");
+                int score = jsonObject.getInt("score");
+                String status = jsonObject.getString("status");
+                String notes = jsonObject.getString("notes");
                 ContentValues cv = new ContentValues();
                 cv.put(COLUMN_TITLE, title);
                 cv.put(COLUMN_IMAGE_URI, imageUri);
                 cv.put(COLUMN_MAL_ID, malId);
                 cv.put(COLUMN_EPISODES, episodes);
+                cv.put(COLUMN_WATCHED_EPISODES,watchedEpisodes);
+                cv.put(COLUMN_SCORE,score);
+                cv.put(COLUMN_STATUS,status);
+                cv.put(COLUMN_NOTES,notes);
                 long result = db.insert(TABLE_ANIME, null, cv);
 
                 if (result == -1) {

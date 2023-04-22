@@ -88,8 +88,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
 
 
-
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -122,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 titleView.setVisibility(View.GONE);
                 fragmentManager.beginTransaction().hide(activeFragment).show(searchFragment).commit();
                 activeFragment = searchFragment;
+                navigation.setVisibility(View.GONE);
 
             }
         });
@@ -132,8 +131,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 titleView.setVisibility(View.VISIBLE);
                 fragmentManager.beginTransaction().hide(activeFragment).show(previousFragment).commit();
                 activeFragment = previousFragment;
-
-
+                navigation.setVisibility(View.VISIBLE);
 
                 return false;
             }

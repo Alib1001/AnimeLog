@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,12 +39,13 @@ import io.netty.resolver.DefaultAddressResolverGroup;
     public class SearchFragment extends Fragment {
 
         private static MyAdapter mAdapter;
-
-
-
         private final static Jikan jikan = new Jikan.JikanBuilder()
                 .httpClientCustomizer(httpClient -> httpClient.resolver(DefaultAddressResolverGroup.INSTANCE))
                 .build();
+
+        private Handler mHandler = new Handler();
+        private Runnable mRunnable;
+
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -119,6 +121,7 @@ import io.netty.resolver.DefaultAddressResolverGroup;
 
             mAdapter.setData(dataList);
         }
+
 
         private static class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             private List<AnimeData> mData = new ArrayList<>();

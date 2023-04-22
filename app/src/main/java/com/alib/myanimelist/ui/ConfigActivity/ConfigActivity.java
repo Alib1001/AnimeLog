@@ -108,6 +108,7 @@ public class ConfigActivity extends AppCompatActivity {
                 notes = notesEd.getText().toString();
                 dbHelper.updateAnimeConfig(anime,watchedEps,score,selectedStatus,notes);
                 dbHelper.exportDataToTxt();
+                dbHelper.exportDataToJSON();
             }
         });
 

@@ -85,6 +85,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.AnimeViewHol
            Anime anime1 = animeList.get(holder.getAdapterPosition());
            dbHelper.updateAnime(anime1);
 
+
            dbHelper.exportDataToTxt();
            dbHelper.exportDataToJSON();
            dbHelper.close();
