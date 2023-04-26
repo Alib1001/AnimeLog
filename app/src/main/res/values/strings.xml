@@ -95,7 +95,20 @@
     </string>
     <string name="action_settings">Settings</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="backup_text">To import data: \n
+
+    Go to the following directory on your device: Device/Android/data/com.alib.myanimelist/files/anime_data
+    Replace the existing file (anime_data) with your file (the name must be the same).\n\n
+
+To export data:\n
+
+    Go to the following directory on your device: Device/Android/data/com.alib.myanimelist/anime_data and
+    copy the file.\n\n
+
+To view your text file:\n
+
+    Go to the following directory on your device: Device/Android/data/com.alib.myanimelist/my_anime_data and open it
+    </string>
     <string name="spin_status">Select status</string>
     <string name="spin_watched">Episodes</string>
     <string name="spin_rate">Select rate</string>

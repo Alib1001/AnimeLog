@@ -5,10 +5,34 @@
     android:layout_height="match_parent"
     tools:context=".ui.Backup.BackupFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <!-- ScrollView to make the TextView scrollable -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:gravity="center"
+            android:textSize="22sp"
+            android:layout_height="wrap_content"
+            android:text="@string/backup_text" />
+
+    </ScrollView>
+
+    <!-- Button 1 -->
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Import data"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="16dp" />
+
+    <!-- Button 2 -->
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Export data"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp" />
 
 </FrameLayout>
