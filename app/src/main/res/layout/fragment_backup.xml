@@ -21,14 +21,17 @@
 
     <!-- Button 1 -->
     <Button
+        android:id="@+id/importBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Import data"
+        android:visibility="gone"
         android:layout_gravity="bottom|start"
         android:layout_margin="16dp" />
 
     <!-- Button 2 -->
     <Button
+        android:id="@+id/exportBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Export data"
