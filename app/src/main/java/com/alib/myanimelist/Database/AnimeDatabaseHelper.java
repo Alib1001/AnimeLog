@@ -323,12 +323,12 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
             File dir = new File(context.getExternalFilesDir(null), "anime_data_json");
             if (!dir.exists()) {
                 dir.mkdirs();
-                Toast.makeText(context, "Directory does not exists !",Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Directory does not exist!", Toast.LENGTH_SHORT).show();
             }
-            String filePath = dir.getAbsolutePath()+ "/anime_data.json";
+            String filePath = dir.getAbsolutePath() + "/anime_data.json";
             File file = new File(filePath);
             if (!file.exists()) {
-                Toast.makeText(context, "Json File does not exists !",Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "JSON file does not exist!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -345,23 +345,24 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                String title = jsonObject.getString("title");
-                String imageUri = jsonObject.getString("imageuri");
-                int malId = jsonObject.getInt("malID");
-                int episodes = jsonObject.getInt("episodes");
-                int watchedEpisodes = jsonObject.getInt("watchEpisodes");
-                int score = jsonObject.getInt("score");
-                String status = jsonObject.getString("status");
-                String notes = jsonObject.getString("notes");
+                String title = jsonObject.optString("title", "none");
+                String imageUri = jsonObject.optString("imageuri", "none");
+                int malId = jsonObject.optInt("malID", 0);
+                int episodes = jsonObject.optInt("episodes", 0);
+                int watchedEpisodes = jsonObject.optInt("watchEpisodes", 0);
+                int score = jsonObject.optInt("score", 0);
+                String status = jsonObject.optString("status", "none");
+                String notes = jsonObject.optString("notes", "none");
+
                 ContentValues cv = new ContentValues();
                 cv.put(COLUMN_TITLE, title);
                 cv.put(COLUMN_IMAGE_URI, imageUri);
                 cv.put(COLUMN_MAL_ID, malId);
                 cv.put(COLUMN_EPISODES, episodes);
-                cv.put(COLUMN_WATCHED_EPISODES,watchedEpisodes);
-                cv.put(COLUMN_SCORE,score);
-                cv.put(COLUMN_STATUS,status);
-                cv.put(COLUMN_NOTES,notes);
+                cv.put(COLUMN_WATCHED_EPISODES, watchedEpisodes);
+                cv.put(COLUMN_SCORE, score);
+                cv.put(COLUMN_STATUS, status);
+                cv.put(COLUMN_NOTES, notes);
                 long result = db.insert(TABLE_ANIME, null, cv);
 
                 if (result == -1) {
@@ -376,6 +377,7 @@ public class AnimeDatabaseHelper extends SQLiteOpenHelper {
             e.printStackTrace();
         }
     }
+
 
     public int  animeCount(){
         Cursor cursor = readAllData();

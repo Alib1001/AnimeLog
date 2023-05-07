@@ -38,6 +38,8 @@ public class FavAnimeFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dbHelper = new AnimeDatabaseHelper(getActivity());
+
+        dbHelper.importDataFromJson();
     }
 
     @Nullable
